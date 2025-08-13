@@ -320,7 +320,7 @@ require('lazy').setup {
       -- [[ Configure Telescope ]]
       require('telescope').setup {
         pickers = {
-          find_command = '/home/hatano/.local/share/zinit/plugins/BurntSushi---ripgrep/ripgrep-14.1.0-x86_64-unknown-linux-musl/rg',
+          find_command = '/home/forcia/.local/share/zinit/plugins/BurntSushi---ripgrep/ripgrep-14.1.0-x86_64-unknown-linux-musl/rg',
         },
         extensions = {
           ['ui-select'] = {
