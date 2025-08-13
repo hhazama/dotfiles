@@ -1,0 +1,17 @@
+---
+- name: mise | Install mise
+  shell: curl https://mise.run | sh
+  args:
+    creates: "{{ ansible_exec_user_home }}/.local/bin/mise"
+
+- name: mise | Install tools
+  shell: "mise install"
+  environment:
+    PATH: "{{ ansible_exec_user_home }}/.local/bin:{{ ansible_env.PATH }}"
+
+- name: mise | npm install
+  become_user: "{{ ansible_exec_user }}"
+  shell: npm install --global \
+    @openai/codex \
+    @anthropic-ai/claude-code
+  

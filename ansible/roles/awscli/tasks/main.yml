@@ -1,0 +1,29 @@
+---
+- name: awscli | Create awscli directories
+  become_user: "{{ ansible_exec_user }}"
+  file:
+    path: "{{ xdg_state_home }}/awscli"
+    state: directory
+    mode: "0755"
+    recurse: yes
+
+
+- name: awscli | Download awscli install script
+  become_user: "{{ ansible_exec_user }}"
+  get_url:
+    url: "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
+    dest: "{{ xdg_state_home }}/awscli/awscli-exe-linux-x86_64.zip"
+    force: no
+
+- name: awscli | Unzip awscli install script
+  become_user: "{{ ansible_exec_user }}"
+  unarchive:
+    src: "{{ xdg_state_home }}/awscli/awscli-exe-linux-x86_64.zip"
+    dest: "{{ xdg_state_home }}/awscli"
+    remote_src: yes
+    creates: "{{ xdg_state_home }}/awscli/aws/install"
+
+- name: awscli | Install awscli
+  shell: "{{ xdg_state_home }}/awscli/aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update"
+  args:
+    creates: "/usr/local/bin/aws"

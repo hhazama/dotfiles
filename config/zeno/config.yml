@@ -1,0 +1,231 @@
+### completions ###
+.docker-context: &docker-context
+  lbuffer: ^docker\s
+.aws-context: &aws-context
+  lbuffer: ^aws\s
+.git-context: &git-context
+  lbuffer: ^git\s
+
+snippets:
+  # cd
+  - name: --
+    keyword: --
+    snippet: cd -
+  - name: git status
+    keyword: gs
+    snippet: git status --short --branch
+  # aws
+  - name: aws profile
+    keyword: p
+    snippet: --profile
+    context:
+      <<: *aws-context
+  # git
+  - name: git
+    keyword: g
+    snippet: git
+  - name: git commit
+    keyword: co
+    snippet: commit
+    context:
+      <<: *git-context
+  - name: git add
+    keyword: a
+    snippet: add
+    context:
+      <<: *git-context
+  - name: git pull
+    keyword: pl
+    snippet: pull
+    context:
+      <<: *git-context
+  - name: git push
+    keyword: pu
+    snippet: push
+    context:
+      <<: *git-context
+  - name: git checkout
+    keyword: ch
+    snippet: checkout
+    context:
+      <<: *git-context
+  - name: git switch
+    keyword: sw
+    snippet: switch
+    context:
+      <<: *git-context
+  - name: git fetch
+    keyword: fe
+    snippet: fetch
+    context:
+      <<: *git-context
+  - name: git cherry-pick
+    keyword: cp
+    snippet: cherry-pick
+    context:
+      <<: *git-context
+  # docker
+  - name: docker
+    keyword: do
+    snippet: docker
+
+  - name: docker compose
+    keyword: co
+    snippet: compose
+    context:
+      <<: *docker-context
+
+  - name: docker logs
+    keyword: lo
+    snippet: logs --tail 100 -f
+    context:
+      context:
+      <<: *docker-context
+
+  - name: docker pull
+    keyword: pl
+    snippet: pull
+    context:
+      <<: *docker-context
+
+  - name: docker push
+    keyword: pu
+    snippet: push
+    context:
+      <<: *docker-context
+
+  - name: docker restart
+    keyword: re
+    snippet: restart
+    context:
+      <<: *docker-context
+
+  - name: docker run
+    keyword: ru
+    snippet: run -it --rm
+    context:
+      <<: *docker-context
+
+### completions ###
+.default-options: &default-options
+  --exit-0: true
+  --select-1: true
+  --tiebreak: begin,index
+  --height: 60%
+  --cycle: true
+  --preview-window: right:50%
+
+.multi-options: &multi-options
+  <<: *default-options
+  --multi: true
+
+.format-options: &format-options
+  <<: *default-options
+  --nth: "3"
+
+completions:
+  # basic command
+  - name: file
+    patterns:
+      - ^\s*(bat|cat|delta|diff|e|grep|head|hexdump|hexyl|less|nvim|sed|tail|vim|vi)(\s+\S+)*\s+$
+    sourceCommand: fd --color=always --hidden --type=f
+    options:
+      <<: *multi-options
+      --preview: fzf-preview-file {}
+    callback: sed 's/ /\\ /g' | paste -s -d ' ' -
+
+  - name: file or directory
+    patterns:
+      - ^\s*(code|cp|ln|mv|rm|subl)(\s+\S+)*\s+$
+    sourceCommand: fd --color=always --hidden
+    options:
+      <<: *default-options
+      --preview: fzf-preview-file {}
+    callback: sed 's/ /\\ /g'
+
+  - name: directory
+    patterns:
+      - ^\s*(cd|la|ll|ls|tree)(\s+\S+)*\s+$
+    sourceCommand: fd --color=always --hidden --type=d
+    options:
+      <<: *default-options
+      --preview: fzf-preview-directory {}
+    callback: sed -E 's/ /\\ /g; s,/?$,/,'
+  # git
+  - name: git cherry-pick
+    patterns:
+      - ^\s*(git)\s+(cherry-pick)(.*\s+)*$
+    sourceCommand: |
+      "$ZENO_HOME/scripts/git-commits.zsh" --all
+    options:
+      <<: *format-options
+      --multi: true
+    callback: awk '{ print $3 }' | tr '\n' ' '
+  - name: git branches completions
+    patterns:
+      - ^\s*(git)\s+(merge|rebase|checkout|switch)(.*\s+)*$
+    sourceCommand: >
+      (
+      "$ZENO_HOME/scripts/git-local-branches.zsh";
+      "$ZENO_HOME/scripts/git-remote-branches.zsh";
+      "$ZENO_HOME/scripts/git-tags.zsh";
+      "$ZENO_HOME/scripts/git-commits.zsh";
+      )
+    options:
+      <<: *format-options
+      --preview: echo {3} | xargs -r git show --color | delta
+    callback: awk '{ print $3 }' | sed 's|^origin/||'
+  # docker
+  - name: docker images completions
+    patterns:
+      - ^\s*(docker)\s+(rmi)(.*\s+)*$
+    sourceCommand: |
+      "$ZENO_HOME/scripts/docker-images.zsh"
+    options: *format-options
+    callback: awk '{ print $4 }'
+  - name: docker containers completions
+    patterns:
+      - ^\s*(docker)\s+(logs|start|stop|)(.*\s+)*$
+    sourceCommand: |
+      "$ZENO_HOME/scripts/docker-containers.zsh"
+    options: *format-options
+    callback: awk '{ print $4 }'
+  # npm
+  - name: npm scripts completions
+    patterns:
+      - ^\s*(npm)\s+(run)\s+$
+      - ^\s*(pnpm)\s+(run)\s+$
+    sourceCommand: |
+      "$ZENO_HOME/scripts/npm-scripts.zsh"
+    options: *format-options
+    callback: awk '{ print $3 }'
+  # aws
+  - name: aws profile completions
+    patterns:
+      - ^\s*(aws)(.*\s+)*(--profile)\s+$
+    sourceCommand:  |
+      "$ZENO_HOME/scripts/aws-profile.zsh"
+    options: *format-options
+    callback: awk '{ print $3 }'
+  # gh
+  - name: gh pr completions
+    patterns:
+      - ^\s*(gh)\s+(pr)(.*\s+)*$
+    sourceCommand: |
+      "$ZENO_HOME/scripts/github-pr-list.zsh"
+    options: *format-options
+    callback: awk '{ print $3 }'
+  - name: gh issue completions
+    patterns:
+      - ^\s*(gh)\s+(issue)(.*\s+)*$
+    sourceCommand: |
+      "$ZENO_HOME/scripts/github-issue-list.zsh"
+    options: *format-options
+    callback: awk '{ print $3 }'
+  - name: gh run completions
+    patterns:
+      - ^\s*(gh)\s+(run)(.*\s+)*$
+    sourceCommand: |
+      "$ZENO_HOME/scripts/github-run-list.zsh"
+    options: *format-options
+    callback: awk '{ print $3 }'

@@ -1,0 +1,12 @@
+gui:
+  containerStatusHealthStyle: "icon"
+commandTemplates:
+  dockerCompose: 'docker compose -f docker/compose.yml'
+customCommands:
+  containers:
+    - name: "Stop All Containers"
+      command: "{{ .DockerCompose }} stop"
+    - name: "Start All Containers"
+      command: "{{ .DockerCompose }} start"
+    - name: "Restart All Containers"
+      command: "{{ .DockerCompose }} restart"

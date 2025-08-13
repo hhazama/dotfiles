@@ -1,0 +1,6 @@
+---
+- name: rye | Install rye
+  become_user: "{{ ansible_exec_user }}"
+  shell: curl -sSf https://rye.astral.sh/get | bash
+  environment:
+    RYE_INSTALL_OPTION: "--yes"

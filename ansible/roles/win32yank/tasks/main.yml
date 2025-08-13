@@ -1,0 +1,27 @@
+---
+- name: win32yank | Create win32yank directories
+  file:
+    path: "{{ xdg_state_home }}/win32yank"
+    state: directory
+    mode: "0755"
+    recurse: yes
+
+- name: win32yank | download win32yank
+  get_url:
+    url: "https://github.com/equalsraf/win32yank/releases/download/v0.1.1/win32yank-x64.zip"
+    dest: "{{ xdg_state_home }}/win32yank/win32yank-x64.zip"
+    force: no
+
+- name: win32yank | unzip win32yank
+  unarchive:
+    src: "{{ xdg_state_home }}/win32yank/win32yank-x64.zip"
+    dest: "{{ xdg_state_home }}/win32yank"
+    remote_src: yes
+    creates: "{{ xdg_state_home }}/win32yank/win32yank.exe"
+
+- name: win32yank | copy win32yank to /usr/local/bin
+  copy:
+    src: "{{ xdg_state_home }}/win32yank/win32yank.exe"
+    dest: "/usr/local/bin/win32yank"
+    mode: "0755"
+    force: no 

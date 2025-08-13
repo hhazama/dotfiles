@@ -1,0 +1,50 @@
+---
+- name: apt | apt update
+  ignore_errors: yes
+  apt:
+    update_cache: yes
+
+- name: apt | Install packages
+  apt:
+    state: present
+    name:
+      - autoconf
+      - bc
+      - build-essential
+      - bzip2
+      - curl
+      - fonts-powerline
+      - jq
+      - libbz2-dev
+      - libcurl4-openssl-dev
+      - libffi-dev
+      - liblzma-dev
+      - libncursesw5-dev
+      - libreadline-dev
+      - libssl-dev
+      - libsqlite3-dev
+      - libxml2-dev
+      - libxmlsec1-dev
+      - nkf
+      - openssh-server
+      - sshpass
+      - tk-dev
+      - uuid-dev
+      - wl-clipboard
+      - xdg-utils
+      - xz-utils
+      - zip
+      - zlib1g-dev
+      - zstd
+
+- name: apt | download wsl-open
+  get_url:
+    url: https://raw.githubusercontent.com/4U6U57/wsl-open/master/wsl-open.sh
+    dest: /usr/local/bin/wsl-open
+    mode: '755'
+
+- name: apt | create symlinks for wsl-open
+  file:
+    src: /usr/local/bin/wsl-open
+    dest: /usr/local/bin/xdg-open
+    state: link

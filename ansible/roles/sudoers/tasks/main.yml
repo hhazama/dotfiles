@@ -1,0 +1,10 @@
+---
+- name: sudoers | edit sudoers
+  blockinfile:
+    state: present
+    dest: /etc/sudoers
+    marker: "# {mark} ANSIBLE MANAGED BLOCK sudoers"
+    backup: yes
+    validate: visudo -cf %s
+    block: |
+      {{ ansible_exec_user }} ALL=(root)  NOPASSWD:ALL

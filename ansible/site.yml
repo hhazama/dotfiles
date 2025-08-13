@@ -1,0 +1,41 @@
+---
+
+- hosts: all
+  become: yes
+  become_method: sudo
+  vars_files:
+    - ./vars/default.yml
+  roles:
+    - role: ./roles/sudoers
+      tags:
+        - sudoers
+    - role: ./roles/apt
+      tags:
+        - apt
+    - role: ./roles/homebrew
+      tags:
+        - homebrew
+    - role: ./roles/ssh
+      tags:
+        - ssh
+    - role: ./roles/links
+      tags:
+        - links
+    - role: ./roles/docker
+      tags:
+        - docker
+    - role: ./roles/zsh
+      tags:
+        - zsh
+    - role: ./roles/mise
+      tags:
+        - mise
+    - role: ./roles/rye
+      tags:
+        - rye
+    - role: ./roles/awscli
+      tags:
+        - awscli
+    - role: ./roles/win32yank
+      tags:
+        - win32yank

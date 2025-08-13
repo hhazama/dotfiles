@@ -1,0 +1,53 @@
+---
+- name: docker | Remove old docker
+  apt:
+    state: absent
+    name:
+      - docker
+      - docker-engine
+      - docker.io
+      - containerd
+      - runc
+
+- name: docker | Add apt key for docker
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: docker | Add apt repository for docker
+  apt_repository:
+    repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+    state: present
+
+- name: docker | Install docker-ce
+  apt:
+    update_cache: yes
+    state: present
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+
+- name: docker | Start docker service
+  service:
+    name: docker
+    state: started
+
+- name: docker | Enable docker service
+  service:
+    name: docker
+    enabled: yes
+
+- name: docker | Add user to docker group
+  user:
+    state: present
+    name: "{{ ansible_exec_user }}"
+    append: yes
+    groups: docker
+
+- name: docker | Restart docker service
+  service:
+    name: docker
+    state: restarted
