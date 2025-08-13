@@ -1,0 +1,34 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__jira-mcp__getAccessibleAtlassianResources",
+      "mcp__jira-mcp__getJiraIssue",
+      "mcp__forcia-slack-mcp__forcia_slack_post_message"
+    ],
+    "deny": []
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "claude-notify.sh 処理が完了しました"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.message' | xargs -r -I {} claude-notify.sh \"{}\""
+          }
+        ]
+      }
+    ]
+  }
+}

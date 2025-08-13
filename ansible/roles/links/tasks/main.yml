@@ -1,0 +1,47 @@
+---
+- name: links | make config home directory
+  become_user: "{{ ansible_exec_user }}"
+  file:
+    state: directory
+    mode: "0755"
+    path: "{{ xdg_config_home }}"
+
+- name: links | make symlinks
+  become_user: "{{ ansible_exec_user }}"
+  file:
+    state: link
+    src: "{{ item }}"
+    dest: "{{ xdg_config_home }}{{ item | replace(config_directory_path, '') }}"
+    force: yes
+  with_lines:
+    - "find {{ config_directory_path }} -mindepth 1 -maxdepth 1 -type d"
+
+- name: links | make .claude directory
+  become_user: "{{ ansible_exec_user }}"
+  file:
+    state: directory
+    mode: "0755"
+    path: "{{ ansible_exec_user_home }}/.claude"
+
+- name: links | create symlink
+  become_user: "{{ ansible_exec_user }}"
+  file:
+    state: link
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    force: "{{ item.force | default('no') }}"
+  with_items:
+    - src: "{{ xdg_config_home }}/tmux/tmux.conf"
+      dest: "{{ ansible_exec_user_home }}/.tmux.conf"
+    - src: "{{ xdg_config_home }}/curl/.curlrc"
+      dest: "{{ ansible_exec_user_home }}/.curlrc"
+    - src: "{{ xdg_config_home }}/claude-settings/CLAUDE.md"
+      dest: "{{ xdg_config_home }}/claude/CLAUDE.md"
+    - src: "{{ xdg_config_home }}/claude-settings/commands"
+      dest: "{{ xdg_config_home }}/claude/commands"
+    - src: "{{ xdg_config_home }}/claude-settings/settings.json"
+      dest: "{{ xdg_config_home }}/claude/settings.json"
+      force: yes
+    - src: "{{ xdg_config_home }}/claude"
+      dest: "{{ ansible_exec_user_home }}/.claude"
+      force: yes

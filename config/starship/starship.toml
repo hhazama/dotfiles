@@ -1,0 +1,175 @@
+"$schema" = 'https://starship.rs/config-schema.json'
+
+# Use custom format
+format = """
+( ↓ status ↓ )\
+([ $os $username@$hostname [](bg:default fg:user_bg)](bg:user_bg fg:user_fg))\
+([[](bg:directory_bg fg:default) ${custom.directory} [](bg:default fg:directory_bg)](bg:directory_bg fg:directory_fg))\
+([[](bg:git_bg fg:default) ${custom.git_icon} ( $git_branch)( $git_commit)( ${custom.git_tag})( $git_state$git_status)( ${custom.git_user}) [](bg:default fg:git_bg)](bg:git_bg fg:git_fg))\
+([[](bg:nodejs_bg fg:default) $nodejs [](bg:default fg:nodejs_bg)](bg:nodejs_bg fg:nodejs_fg))\
+([[](bg:python_bg fg:default) $python [](bg:default fg:python_bg)](bg:python_bg fg:python_fg))\
+([[](bg:rust_bg fg:default) $rust [](bg:default fg:rust_bg)](bg:rust_bg fg:rust_fg))\
+( ↑ status ↑ )\
+( ↓ time ↓ )\
+$fill\
+([$cmd_duration ](fg:duration_fg))\
+([[](fg:time_bg) $time ](bg:time_bg fg:time_fg))\
+( ↑ time ↑ )\
+( ↓ prompt ↓ )\
+$line_break\
+([ $character ](bg:character_bg)[](fg:character_bg))\
+[ \\$](fg:243) \
+( ↑ prompt ↑ )\
+"""
+
+add_newline = false
+
+palette = "default"
+
+[palettes.default]
+default = "#464347"
+
+# os
+os_bg = "33"
+os_fg = "white"
+# user
+user_bg = "8"
+user_fg = "white"
+# directory
+directory_bg = "123"
+directory_fg = "black"
+# git
+git_bg = "208"
+git_fg = "black"
+# character
+character_bg = "white"
+character_success_fg = "green"
+character_failure_fg = "red"
+# time
+time_bg = "white"
+time_fg = "8"
+# duration
+duration_fg = "#464347"
+# nodejs
+nodejs_bg = "green"
+nodejs_fg = "black"
+# python
+python_bg = "226"
+python_fg = "black"
+# rust
+rust_bg = "red"
+rust_fg = "black"
+
+[os]
+disabled = false
+format = "$symbol"
+
+[os.symbols]
+Ubuntu = ""
+
+[username]
+disabled = false
+format = "$user"
+show_always = true
+
+[hostname]
+disabled = false
+ssh_only = false
+trim_at = "."
+format = "$hostname"
+
+[directory]
+# TODO カスタムコマンドでshrink pathを表示したい
+disabled = false
+format = "$path"
+truncate_to_repo = false
+truncation_length = 100
+
+[custom.directory]
+disabled = false
+when = true
+command = "$STARSHIP_DIR/scripts/shrink_path.zsh"
+format = "( $output)"
+
+[custom.git_icon]
+description = "show git icon"
+disabled = false
+when = true
+require_repo = true
+format = "$output"
+command  = "$STARSHIP_DIR/scripts/git_icon.zsh"
+
+[git_branch]
+disabled = false
+symbol = " "
+format = "$symbol$branch(:$remote_branch)"
+
+[git_commit]
+disabled = false
+only_detached = true
+tag_disabled = false
+format = ' $hash'
+
+[custom.git_tag]
+disabled = false
+when = true
+require_repo = true
+format = "( $output)"
+command  = "git describe --tags --exact-match 2> /dev/null"
+
+[git_state]
+disabled = false
+format = "\\($state( $progress_current/$progress_total)\\)"
+
+[git_status]
+disabled = false
+format = '($all_status$ahead_behind)'
+conflicted = ""
+staged = " "
+deleted = " "
+renamed = " "
+modified = " "
+untracked = " "
+
+[custom.git_user]
+disabled = false
+when = true
+require_repo = true
+format = "( $output)"
+command = "git config --get user.name"
+
+[character]
+disabled = false
+format = "$symbol"
+success_symbol = "[✓](bg:character_bg fg:character_success_fg)"
+error_symbol = "[](bg:character_bg fg:character_failure_fg)"
+
+[time]
+disabled = false
+style = "bg:time_bg fg:time_fg"
+format = "( $time)"
+
+[cmd_duration]
+disabled = false
+show_milliseconds = true
+min_time = 500
+format = "( $duration)"
+
+[fill]
+disabled = false
+symbol = " "
+
+[nodejs]
+disabled = false
+format = "$symbol $version"
+symbol = ""
+
+[python]
+disabled = false
+format = "$symbol $version( \\($virtualenv\\))"
+symbol = ""
+
+[rust]
+disabled = false
+format = "$symbol $version"
+symbol = ""

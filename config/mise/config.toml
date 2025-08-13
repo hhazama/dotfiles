@@ -1,0 +1,9 @@
+[tools]
+node = "22"
+python = "3.11.3"
+deno = "1.41.3"
+rust = "1.82.0"
+bun = "latest"
+pnpm = "latest"
+go = "latest"
+java = "21"
