@@ -7,12 +7,6 @@ export COLORTERM=truecolor
 ### EDITOR ###
 export EDITOR="code"
 
-### history ###
-export HISTORY_IGNORE="(cd|pwd|l[sal]|jj?|history|clear)"
-export HISTFILE="$XDG_STATE_HOME/zsh_history"
-export HISTSIZE=1000
-export SAVEHIST=1000
-
 ### less ###
 export LESSHISTFILE='-'
 
@@ -24,6 +18,12 @@ export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_DATA_HOME="$HOME/.local/share"
 export XDG_STATE_HOME="$HOME/.local/state"
 export XDG_CACHE_HOME="$HOME/.cache"
+
+### history ###
+export HISTORY_IGNORE="(cd|pwd|l[sal]|jj?|history|clear)"
+export HISTFILE="$XDG_STATE_HOME/zsh_history"
+export HISTSIZE=100000000
+export SAVEHIST=$HISTSIZE
 
 ### starship ###
 export STARSHIP_DIR="$XDG_CONFIG_HOME/starship"
@@ -111,5 +111,3 @@ export AWS_SHARED_CREDENTIALS_FILE="$XDG_CONFIG_HOME/aws/credentials"
 ### auto suggestions ###
 export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=244"
 
-source "$XDG_CONFIG_HOME/zsh/.zshenv.local"
-. "/home/hatano/.local/share/cargo/env"

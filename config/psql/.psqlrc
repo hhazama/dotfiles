@@ -1,0 +1,22 @@
+\set COMP_KEYWORD_CASE upper
+\set VERBOSITY verbose
+\set HISTCONTROL ignoredups
+\set HISTSIZE 1000000
+\set paste
+\set PROMPT1 '%[%033[1;32m%]%n %`date +%H:%M` %R%#%[%033[0m%] '
+\set PROMPT2 '%[%033[1;32m%]%R%#%[%033[0m%] '
+\timing on
+\x  auto
+\pset null '[NULL]'
+
+SELECT current_database() ~ '.*_(stg|dev|stga|stgb)' as is_stg
+\gset
+SELECT current_database() ~ '.*_prod' as is_prod
+\gset
+\if :is_prod
+        \set PROMPT1 '%[%033[1;31m%]DANGER_PROD_ENV%[%033[1;31m%] %n@%/%R%#%x '
+\elif :is_stg
+        \set PROMPT1 '%[%033[1;33m%]WARNING_STG_ENV%[%033[1;33m%] %n@%/%R%#%x '
+\else
+        -- do nothing
+\endif

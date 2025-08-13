@@ -1,5 +1,5 @@
 ### Aliases ###
-alias rz='source ${ZDOTDIR}/.zshrc'
+alias so='source ${ZDOTDIR}/.zshrc'
 
 alias la='ls -a'
 alias ll='ls -al'
@@ -25,6 +25,11 @@ alias wget='wget --hsts-file="$XDG_STATE_HOME/wget-hsts"'
 alias python="python3"
 alias pip="pip3"
 
+alias mt="cd ~/gitlab_local/webconnect/material_registration"
+alias dot="cd /data/repos/hhazama/dotfiles"
+alias gco="git checkout"
+alias tiga="tig --all"
+
 if [ -n "$TMUX" ] && [ -n "$FZF_TMUX" ]; then
 	__fzf_tmux() {
 		if [ -n "$@" ]; then
@@ -35,3 +40,4 @@ if [ -n "$TMUX" ] && [ -n "$FZF_TMUX" ]; then
 	}
 	alias fzf="fzf-tmux $FZF_TMUX_OPTS -- "
 fi
+
