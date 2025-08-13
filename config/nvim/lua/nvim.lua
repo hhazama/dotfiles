@@ -31,6 +31,12 @@ vim.opt.showmode = false
 -- クリップボード
 vim.opt.clipboard = 'unnamedplus'
 
+vim.filetype.add {
+  extension = {
+    sqltmpl = 'sql',
+  },
+}
+
 -- Save undo history
 vim.opt.undofile = true
 
