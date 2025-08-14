@@ -89,7 +89,7 @@ vim.opt.pumblend = 10
 vim.opt.winblend = 10
 
 -- swapfileの設定
-vim.opt.swapfile = false
+vim.opt.swapfile = true -- スワップファイルを有効（デフォルト）
 
 -- Set highlight on search, but clear on pressing <Esc> in normal mode
 vim.opt.hlsearch = true
