@@ -266,15 +266,26 @@ require('lazy').setup {
   -- Adds git related signs to the gutter, as well as utilities for managing changes
   {
     'lewis6991/gitsigns.nvim',
-    opts = {
-      signs = {
-        add = { text = '+' },
-        change = { text = '~' },
-        delete = { text = '_' },
-        topdelete = { text = '‾' },
-        changedelete = { text = '~' },
-      },
-    },
+    config = function()
+      require('gitsigns').setup {
+        -- リアルタイムでblame情報を表示
+        current_line_blame = true,
+        current_line_blame_opts = {
+          virt_text = true,
+          virt_text_pos = 'eol', -- 行末に表示
+          delay = 100, -- 100ms後に表示
+          ignore_whitespace = false,
+        },
+        current_line_blame_formatter = '<author>, <author_time:%Y-%m-%d> - <summary>',
+        signs = {
+          add = { text = '+' },
+          change = { text = '~' },
+          delete = { text = '_' },
+          topdelete = { text = '‾' },
+          changedelete = { text = '~' },
+        },
+      }
+    end,
   },
 
   -- Useful plugin to show you pending keybinds.
@@ -696,11 +707,13 @@ require('lazy').setup {
 
   -- colorscheme
   {
-    'folke/tokyonight.nvim',
-    priority = 1000, -- Make sure to load this before all the other start plugins.
-    init = function()
-      vim.cmd.colorscheme 'tokyonight-night'
-      vim.cmd.hi 'Comment gui=none'
+    'loctvl842/monokai-pro.nvim',
+    priority = 1000,
+    config = function()
+      require('monokai-pro').setup {
+        filter = 'pro', -- classic, octagon, pro, machine, ristretto, spectrum
+      }
+      vim.cmd.colorscheme 'monokai-pro'
     end,
   },
 
@@ -899,6 +912,9 @@ require('lazy').setup {
     config = function()
       require('noice').setup {
         lsp = {
+          progress = {
+            enabled = false, -- プログレス表示を無効
+          },
           -- override markdown rendering so that **cmp** and other plugins use **Treesitter**
           override = {
             ['vim.lsp.util.convert_input_to_markdown_lines'] = true,
