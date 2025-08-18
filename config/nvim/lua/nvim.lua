@@ -98,6 +98,8 @@ vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
 -- jjでノーマルモードに戻る
 vim.keymap.set('i', 'jj', '<Esc>')
+-- Ctrl+w+t で新しいタブ作成
+vim.keymap.set('n', '<C-w>t', ':tabnew<CR>', { desc = 'New tab' })
 
 -- Diagnostic keymaps
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous [D]iagnostic message' })
@@ -968,6 +970,32 @@ require('lazy').setup {
     config = function()
       require('symbol-usage').setup {
         vt_position = 'end_of_line',
+      }
+    end,
+  },
+
+  -- GitLab link generation
+  {
+    'ruifm/gitlinker.nvim',
+    dependencies = 'nvim-lua/plenary.nvim',
+    config = function()
+      -- カスタムHTTPコールバック関数 gitlab.fdev用にhttpsで生成されるリンクはhttpにする
+      local function get_gitlab_http_url(url_data)
+        local url = require('gitlinker.hosts').get_gitlab_type_url(url_data)
+        -- httpsをhttpに置換
+        return url:gsub('^https://', 'http://')
+      end
+
+      require('gitlinker').setup {
+        opts = {
+          add_current_line_on_normal_mode = true,
+          action_callback = require('gitlinker.actions').copy_to_clipboard,
+          print_url = true,
+        },
+        callbacks = {
+          ['gitlab.fdev'] = get_gitlab_http_url,
+        },
+        mappings = '<leader>gy',
       }
     end,
   },
