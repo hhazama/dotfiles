@@ -830,7 +830,7 @@ require('lazy').setup {
     },
     cmd = 'Neotree',
     keys = {
-      { '\\', ':Neotree reveal<CR>', { desc = 'NeoTree reveal' } },
+      { '<C-e>', ':Neotree reveal<CR>', { desc = 'NeoTree reveal' } },
     },
     opts = {
       window = {
@@ -848,7 +848,7 @@ require('lazy').setup {
         },
         window = {
           mappings = {
-            ['\\'] = 'close_window',
+            ['<C-e>'] = 'close_window',
             ['m'] = {
               'move',
               config = {
