@@ -81,9 +81,6 @@ vim.opt.wrap = true
 -- 入力中のコマンドを表示
 vim.opt.showcmd = true
 
--- TrueColorの設定
-vim.opt.termguicolors = true
-
 -- floating windowの設定
 vim.opt.pumblend = 10
 vim.opt.winblend = 10
@@ -877,12 +874,24 @@ require('lazy').setup {
     'akinsho/bufferline.nvim',
     version = '*',
     dependencies = 'nvim-tree/nvim-web-devicons',
+    config = function()
+      require('bufferline').setup()
+
+      vim.keymap.set('n', '<leader>bch', '<CMD>BufferLineCloseLeft<CR>', { desc = '[B]uffer [C]lose left' })
+      vim.keymap.set('n', '<leader>bcl', '<CMD>BufferLineCloseRight<CR>', { desc = '[B]uffer [C]lose right' })
+      vim.keymap.set('n', '<leader>bco', '<CMD>BufferLineCloseOthers<CR>', { desc = '[B]uffer [C]lose [O]thers' })
+      vim.keymap.set('n', '<S-l>', '<CMD>BufferLineCycleNext<CR>', { desc = 'Go to next Buffer' })
+      vim.keymap.set('n', '<S-h>', '<CMD>BufferLineCyclePrev<CR>', { desc = 'Go to prev Buffer' })
+    end,
   },
 
   -- lualine
   {
     'nvim-lualine/lualine.nvim',
     dependencies = { 'nvim-tree/nvim-web-devicons' },
+    config = function()
+      require('lualine').setup {}
+    end,
   },
 
   -- GitHub Copilot
@@ -1000,11 +1009,3 @@ require('lazy').setup {
     end,
   },
 }
-
-require('bufferline').setup()
-vim.keymap.set('n', '<leader>bch', '<CMD>BufferLineCloseLeft<CR>', { desc = '[B]uffer [C]lose left' })
-vim.keymap.set('n', '<leader>bcl', '<CMD>BufferLineCloseRight<CR>', { desc = '[B]uffer [C]lose right' })
-vim.keymap.set('n', '<leader>bco', '<CMD>BufferLineCloseOthers<CR>', { desc = '[B]uffer [C]lose [O]thers' })
-vim.keymap.set('n', '<S-l>', '<CMD>BufferLineCycleNext<CR>', { desc = 'Go to next Buffer' })
-vim.keymap.set('n', '<S-h>', '<CMD>BufferLineCyclePrev<CR>', { desc = 'Go to prev Buffer' })
-require('lualine').setup {}
