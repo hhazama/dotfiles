@@ -935,7 +935,7 @@ require('lazy').setup {
         },
         -- you can enable a preset for easier configuration
         presets = {
-          bottom_search = false, -- use a classic bottom cmdline for search
+          bottom_search = true, -- use a classic bottom cmdline for search
           command_palette = true, -- position the cmdline and popupmenu together
           long_message_to_split = true, -- long messages will be nt to a split
           inc_rename = false, -- enables an input dialog for inc-rename.nvim
@@ -1005,6 +1005,31 @@ require('lazy').setup {
           ['gitlab.fdev'] = get_gitlab_http_url,
         },
         mappings = '<leader>gy',
+      }
+    end,
+  },
+  {
+    'epwalsh/obsidian.nvim',
+    version = '*',
+    lazy = false,
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    ft = 'markdown',
+    config = function()
+      require('obsidian').setup {
+        workspaces = {
+          {
+            name = 'main',
+            path = '~/obsidian_vault/main/',
+          },
+        },
+        daily_notes = {
+          folder = 'daily',
+          date_format = '%Y-%m-%d',
+          template = 'daily.md',
+        },
+        templates = {
+          folder = 'templates',
+        },
       }
     end,
   },
