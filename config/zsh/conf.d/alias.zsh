@@ -6,7 +6,7 @@ alias ll='ls -al'
 alias exa='eza'
 alias ls='exa --group-directories-first'
 alias la='exa --group-directories-first -a'
-alias ll='exa --group-directories-first -al --header --color-scale --git --icons --time-style=long-iso'
+alias ll='exa --group-directories-first -al --header --color-scale --icons --time-style=long-iso'
 alias tree='exa --group-directories-first -T --icons'
 
 alias cp='cp -i'
