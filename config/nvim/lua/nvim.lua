@@ -1034,3 +1034,7 @@ require('lazy').setup {
     end,
   },
 }
+
+-- ターミナルを開くキーマップ
+vim.keymap.set('n', '<leader>ts', ':split | terminal<CR>', { desc = '[T]erminal [T]oggle (horizontal)' })
+vim.keymap.set('n', '<leader>tv', ':vsplit | terminal<CR>', { desc = '[T]erminal [V]ertical' })
