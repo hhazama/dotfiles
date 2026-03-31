@@ -26,6 +26,7 @@ alias python="python3"
 alias pip="pip3"
 
 alias mt="cd ~/gitlab_local/webconnect/material_registration"
+alias taco="cd ~/gitlab_local/webconnect/taco"
 alias dot="cd /data/repos/hhazama/dotfiles"
 alias gco="git checkout"
 alias tiga="tig --all"
@@ -41,3 +42,19 @@ if [ -n "$TMUX" ] && [ -n "$FZF_TMUX" ]; then
 	alias fzf="fzf-tmux $FZF_TMUX_OPTS -- "
 fi
 
+
+alias mr-review='f(){ claude "以下のマージリクエストをレビューしてください。
+
+まず以下のコマンドを実行してMR情報を取得してください:
+- glab mr view $1
+- glab mr diff $1
+
+世界トップレベルのエンジニアとして以下の観点でコードレビューを行い、解説、良い点、問題点、改善点を教えてください:
+1. コードの品質と可読性
+2. 潜在的なバグやエッジケース
+3. パフォーマンスの問題
+4. セキュリティ上の懸念
+5. ベストプラクティスへの準拠
+
+buildやlintなど時間のかかる処理は実行しないでください。
+"; }; f'

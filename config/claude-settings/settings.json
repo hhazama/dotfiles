@@ -1,4 +1,11 @@
 {
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "bash /home/forcia/.claude/statusline-command.sh"
+  },
   "permissions": {
     "allow": [
       "mcp__jira-mcp__getAccessibleAtlassianResources",
@@ -30,5 +37,7 @@
         ]
       }
     ]
-  }
+  },
+  "alwaysThinkingEnabled": true,
+  "effortLevel": "high"
 }
