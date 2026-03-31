@@ -42,6 +42,8 @@
     - src: "{{ xdg_config_home }}/claude-settings/settings.json"
       dest: "{{ xdg_config_home }}/claude/settings.json"
       force: yes
+    - src: "{{ xdg_config_home }}/claude-settings/statusline-command.sh"
+      dest: "{{ xdg_config_home }}/claude/statusline-command.sh"
     - src: "{{ xdg_config_home }}/claude"
       dest: "{{ ansible_exec_user_home }}/.claude"
       force: yes

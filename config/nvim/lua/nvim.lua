@@ -1035,6 +1035,9 @@ require('lazy').setup {
   },
 }
 
+-- SJISでファイルを開き直す
+vim.keymap.set('n', '<leader>S', '<cmd>e ++enc=sjis<CR>', { desc = 'Reopen as [S]JIS' })
+
 -- ターミナルを開くキーマップ
 vim.keymap.set('n', '<leader>ts', ':split | terminal<CR>', { desc = '[T]erminal [T]oggle (horizontal)' })
 vim.keymap.set('n', '<leader>tv', ':vsplit | terminal<CR>', { desc = '[T]erminal [V]ertical' })
