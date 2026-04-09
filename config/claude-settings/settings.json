@@ -2,19 +2,62 @@
   "env": {
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
   },
-  "statusLine": {
-    "type": "command",
-    "command": "bash /home/forcia/.claude/statusline-command.sh"
-  },
   "permissions": {
     "allow": [
       "mcp__jira-mcp__getAccessibleAtlassianResources",
       "mcp__jira-mcp__getJiraIssue",
       "mcp__forcia-slack-mcp__forcia_slack_post_message"
     ],
-    "deny": []
+    "deny": [
+      "Read(~/.ssh/**)",
+      "Read(~/.aws/**)",
+      "Read(~/.azure/**)",
+      "Read(~/.config/gcloud/**)",
+      "Read(~/.docker/**)",
+      "Read(~/.gnupg/**)",
+      "Read(~/.netrc)",
+      "Read(./secrets/**)",
+      "Read(./config/credentials.json)",
+      "Read(**/*.pem)",
+      "Read(**/*.key)",
+      "Bash(rm -rf *)",
+      "Bash(chmod 777 *)"
+    ],
+    "disableBypassPermissionsMode": "disable",
+    "defaultMode": "auto"
+  },
+  "sandbox": {
+    "enabled": true,
+    "allowUnsandboxedCommands": false,
+    "filesystem": {
+      "denyRead": [
+        "~/.aws/credentials",
+        "~/.ssh"
+      ]
+    },
+    "network": {
+      "allowedDomains": [
+        "github.com",
+        "*.githubusercontent.com",
+        "*.npmjs.org",
+        "registry.yarnpkg.com",
+        "pypi.org",
+        "gitlab.fdev"
+      ]
+    }
   },
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.config/claude-settings/hooks/validate-command.sh"
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "matcher": "",
@@ -38,6 +81,43 @@
       }
     ]
   },
+  "statusLine": {
+    "type": "command",
+    "command": "bash /home/forcia/.claude/statusline-command.sh"
+  },
+  "enabledPlugins": {
+    "cdk@forcia-claude-marketplace": true,
+    "typescript@forcia-claude-marketplace": true,
+    "claude-code-plan-review@forcia-claude-marketplace": true,
+    "code-review@claude-plugins-official": true,
+    "code-simplifier@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true,
+    "skill-creator@claude-plugins-official": true,
+    "gitlab@claude-plugins-official": true,
+    "microsoft-docs@claude-plugins-official": true,
+    "frontend-design@claude-plugins-official": true,
+    "prisma@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true,
+    "feature-dev@claude-plugins-official": true,
+    "plugin-dev@claude-plugins-official": true,
+    "jira-acli@forcia-claude-marketplace": true
+  },
+  "extraKnownMarketplaces": {
+    "forcia-claude-marketplace": {
+      "source": {
+        "source": "git",
+        "url": "git@gitlab.fdev:misc/claude_marketplace"
+      },
+      "autoUpdate": true
+    },
+    "claude-code-plugins": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/claude-code"
+      }
+    }
+  },
   "alwaysThinkingEnabled": true,
-  "effortLevel": "high"
+  "effortLevel": "high",
+  "skipAutoPermissionPrompt": true
 }
