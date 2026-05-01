@@ -5,7 +5,7 @@
 export COLORTERM=truecolor
 
 ### EDITOR ###
-export EDITOR="code"
+export EDITOR="nvim"
 
 ### less ###
 export LESSHISTFILE='-'
