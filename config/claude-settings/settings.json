@@ -16,36 +16,33 @@
       "Read(~/.docker/**)",
       "Read(~/.gnupg/**)",
       "Read(~/.netrc)",
+      "Read(~/.npmrc)",
+      "Read(~/.git-credentials)",
       "Read(./secrets/**)",
       "Read(./config/credentials.json)",
       "Read(**/*.pem)",
       "Read(**/*.key)",
+      "Read(*.env)",
+      "Read(.env.*)",
+      "Edit(~/.bashrc)",
+      "Edit(~/.zshrc)",
+      "Edit(~/.profile)",
       "Bash(rm -rf *)",
-      "Bash(chmod 777 *)"
+      "Bash(chmod 777 *)",
+      "Bash(git push -f:*)",
+      "Bash(git push --force:*)",
+      "Bash(git push --force-with-lease:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(git clean -f:*)",
+      "Bash(git branch -D:*)",
+      "Bash(nc *)",
+      "Bash(ncat *)",
+      "Bash(wget *)"
     ],
-    "disableBypassPermissionsMode": "disable",
-    "defaultMode": "auto"
+    "defaultMode": "auto",
+    "disableBypassPermissionsMode": "disable"
   },
-  "sandbox": {
-    "enabled": true,
-    "allowUnsandboxedCommands": false,
-    "filesystem": {
-      "denyRead": [
-        "~/.aws/credentials",
-        "~/.ssh"
-      ]
-    },
-    "network": {
-      "allowedDomains": [
-        "github.com",
-        "*.githubusercontent.com",
-        "*.npmjs.org",
-        "registry.yarnpkg.com",
-        "pypi.org",
-        "gitlab.fdev"
-      ]
-    }
-  },
+  "enableAllProjectMcpServers": false,
   "hooks": {
     "PreToolUse": [
       {
@@ -100,7 +97,8 @@
     "superpowers@claude-plugins-official": true,
     "feature-dev@claude-plugins-official": true,
     "plugin-dev@claude-plugins-official": true,
-    "jira-acli@forcia-claude-marketplace": true
+    "jira-acli@forcia-claude-marketplace": true,
+    "rust-analyzer-lsp@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "forcia-claude-marketplace": {
@@ -117,7 +115,43 @@
       }
     }
   },
+  "sandbox": {
+    "enabled": true,
+    "failIfUnavailable": true,
+    "allowUnsandboxedCommands": false,
+    "network": {
+      "allowedDomains": [
+        "github.com",
+        "*.githubusercontent.com",
+        "*.npmjs.org",
+        "registry.yarnpkg.com",
+        "pypi.org",
+        "gitlab.fdev"
+      ]
+    },
+    "filesystem": {
+      "allowWrite": [
+        "./"
+      ],
+      "denyRead": [
+        "~/.aws",
+        "~/.ssh",
+        "~/.azure",
+        "~/.config/gcloud",
+        "~/.docker",
+        "~/.gnupg",
+        "~/.git-credentials",
+        "~/.npmrc",
+        "~/.netrc"
+      ],
+      "allowRead": [
+        ".",
+        "/proc/self/fd"
+      ]
+    }
+  },
   "alwaysThinkingEnabled": true,
-  "effortLevel": "high",
+  "effortLevel": "xhigh",
+  "theme": "dark-daltonized",
   "skipAutoPermissionPrompt": true
 }
