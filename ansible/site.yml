@@ -30,12 +30,6 @@
     - role: ./roles/mise
       tags:
         - mise
-    - role: ./roles/rye
-      tags:
-        - rye
-    - role: ./roles/awscli
-      tags:
-        - awscli
     - role: ./roles/win32yank
       tags:
         - win32yank
