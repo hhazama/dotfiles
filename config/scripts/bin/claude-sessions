@@ -2,6 +2,7 @@
 # Claude Code セッション一覧ランチャー。
 # `claude agents --json` と tmux ペインを pid→tty で突き合わせ、状態付き一覧から選んでジャンプする。
 #   (引数なし/TTY) : fzf ポップアップ。枠を即時表示し、データは start:reload で後追い表示
+#                    enter:ジャンプ / ctrl-x:kill / ctrl-y:cwdコピー / ctrl-g:lazygit
 #   --rows         : fzf 用の生データ(隠しフィールド付き)を出力
 #   --list / 非TTY : 表示列のみ出力(検証・スクリプト用)
 set -uo pipefail
@@ -24,7 +25,7 @@ session_label() {
   printf '%s' "${title:-${cwd##*/}}"
 }
 
-# 1行 = 表示\ttarget\tcwd\tsessionId。rank を先頭に付けてソート後に落とす。
+# 1行 = 表示\ttarget\tcwd\tsessionId\tpid。rank を先頭に付けてソート後に落とす。
 # 高速化: ps は全プロセスを1回だけ、状態判定と basename は文字列展開で処理し per-row の fork を避ける。
 emit_rows() {
   local json; json=$(claude agents --json 2>/dev/null) || return 0
@@ -53,8 +54,8 @@ emit_rows() {
         label=$(session_label "$sid" "$cwd" "$name")
         [ "${#label}" -gt 28 ] && label="${label:0:27}…"
         loc="${target:-(no pane)}"
-        printf '%s\t%s %-26s %-22s %-20s %s\t%s\t%s\t%s\n' \
-          "$rank" "$icon" "$label" "${cwd##*/}" "$branch" "$loc" "$target" "$cwd" "$sid"
+        printf '%s\t%s %-26s %-22s %-20s %s\t%s\t%s\t%s\t%s\n' \
+          "$rank" "$icon" "$label" "${cwd##*/}" "$branch" "$loc" "$target" "$cwd" "$sid" "$pid"
       done \
     | sort -k1,1n | cut -f2-
 }
@@ -77,22 +78,38 @@ preview_session() {
     ([.[]|select(.type=="assistant")|select(any(.message.content[]?; .type=="text"))] | last) as $a |
     (($a.message.content // []) | map(select(.type=="text")|.text) | join("\n")) as $r0 |
     (if ($r0|length)==0 then "(なし)" else $r0[0:1200] end) as $reply |
-    "[1m\($cwd)[0m  (mode: \($mode) / \($pm))\n\n[1;36m▶ 直近のプロンプト[0m\n\($prompt)\n\n[1;32m◀ 直近の応答[0m\n\($reply)"
+    "[1m\($cwd)[0m  (mode: \($mode) / \($pm))\n\n[1;36m▶ 直近のプロンプト[0m\n\($prompt)\n\n[1;32m◀ 直近の応答[0m\n\($reply)"
   ' 2>/dev/null
+}
+
+# fzf の ctrl-x から呼ばれる: 確認の上 pid を kill する(execute が tty を渡すので read 可)。
+kill_session() {
+  local pid="$1" sid="$2" a
+  printf 'kill pid %s (session %s)? [y/N] ' "$pid" "$sid"
+  read -r a
+  case "$a" in
+    y|Y) kill "$pid" 2>/dev/null && echo "killed $pid" || echo "kill failed" ;;
+    *)   echo "cancelled" ;;
+  esac
 }
 
 case "${1:-}" in
   --rows)    emit_rows; exit 0 ;;
   --list)    emit_rows | cut -f1; exit 0 ;;
   --preview) preview_session "${2:-}" "${3:-}"; exit 0 ;;
+  --kill)    kill_session "${2:-}" "${3:-}"; exit 0 ;;
 esac
 if [ ! -t 1 ]; then emit_rows | cut -f1; exit 0; fi
 
 # 枠を即時表示し、行は start:reload で流し込む(claude agents の起動待ちを枠表示の後ろに隠す)。
+# 隠しフィールド: {2}=target {3}=cwd {4}=sessionId {5}=pid
 sel=$(fzf --ansi --with-nth=1 --delimiter='\t' \
         --prompt='claude sessions> ' --header='loading…' \
         --bind "start:reload($SELF --rows)" \
-        --bind 'load:change-header(enter: jump   esc: cancel)' \
+        --bind 'load:change-header(enter:jump  ^X:kill  ^Y:copy cwd  ^G:lazygit)' \
+        --bind 'ctrl-y:execute-silent(printf %s {3} | win32yank -i)' \
+        --bind 'ctrl-g:execute(lazygit -p {3})' \
+        --bind "ctrl-x:execute($SELF --kill {5} {4})+reload($SELF --rows)" \
         --preview "$SELF --preview {4} {3}" \
         --preview-window=right,55%,wrap </dev/null) || exit 0
 [ -n "$sel" ] || exit 0
