@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+# Claude Code セッション一覧ランチャー。
+# `claude agents --json` と tmux ペインを突き合わせ、状態付き一覧から選んでジャンプする。
+# 非TTY実行または --list 指定時は一覧を表示するだけ(検証・スクリプト用)。
+set -uo pipefail
+
+command -v claude >/dev/null 2>&1 || { echo "claude not found" >&2; exit 1; }
+command -v jq >/dev/null 2>&1 || { echo "jq not found" >&2; exit 1; }
+
+status_rank() {
+  case "$1" in
+    waiting|needs_input|input) echo 0 ;;
+    busy|running)              echo 1 ;;
+    idle)                      echo 2 ;;
+    *)                         echo 3 ;;
+  esac
+}
+status_icon() {
+  case "$1" in
+    waiting|needs_input|input) echo "⏳" ;;
+    busy|running)              echo "▶" ;;
+    idle)                      echo "✓" ;;
+    *)                         echo "·" ;;
+  esac
+}
+
+# pane_tty -> "session:win.pane" のマップ(tmux 内のときのみ)
+declare -A PANE_BY_TTY
+if [ -n "${TMUX:-}" ]; then
+  while IFS=$'\t' read -r tty target; do
+    PANE_BY_TTY["$tty"]="$target"
+  done < <(tmux list-panes -a -F '#{pane_tty}	#{session_name}:#{window_index}.#{pane_index}')
+fi
+
+# 1行 = 表示\ttarget\tcwd\tsessionId。先頭に rank を付けてソート後に落とす。
+build_rows() {
+  claude agents --json 2>/dev/null \
+    | jq -r '.[] | [(.status//"unknown"), (.pid|tostring), (.cwd//""), (.sessionId//""), (.name//"")] | @tsv' \
+    | while IFS=$'\t' read -r status pid cwd sid name; do
+        tty=$(ps -o tty= -p "$pid" 2>/dev/null | tr -d '[:space:]')
+        target=""
+        if [ -n "$tty" ] && [ "$tty" != "?" ]; then
+          target="${PANE_BY_TTY[/dev/$tty]:-}"
+        fi
+        branch=$(git -C "$cwd" rev-parse --abbrev-ref HEAD 2>/dev/null || echo "-")
+        label="${name:-$(basename "$cwd")}"
+        loc="${target:-(no pane)}"
+        printf '%s\t%s %-26s %-22s %-20s %s\t%s\t%s\t%s\n' \
+          "$(status_rank "$status")" \
+          "$(status_icon "$status")" "$label" "$(basename "$cwd")" "$branch" "$loc" \
+          "$target" "$cwd" "$sid"
+      done \
+    | sort -k1,1n \
+    | cut -f2-
+}
+
+rows=$(build_rows)
+if [ -z "$rows" ]; then
+  echo "実行中の Claude セッションはありません" >&2
+  exit 0
+fi
+
+# 非TTY or --list: 表示のみ
+if [ "${1:-}" = "--list" ] || [ ! -t 1 ]; then
+  printf '%s\n' "$rows" | cut -f1
+  exit 0
+fi
+
+sel=$(printf '%s\n' "$rows" \
+  | fzf --ansi --with-nth=1 --delimiter='\t' \
+        --prompt='claude sessions> ' \
+        --preview 'cwd=$(printf "%s" {} | cut -f3); git -C "$cwd" -c color.ui=always log --oneline -10 2>/dev/null || ls -la "$cwd"' \
+        --preview-window=right,55%) || exit 0
+[ -z "$sel" ] && exit 0
+
+target=$(printf '%s' "$sel" | cut -f2)
+cwd=$(printf '%s' "$sel" | cut -f3)
+sid=$(printf '%s' "$sel" | cut -f4)
+
+if [ -n "$target" ]; then
+  tmux switch-client -t "${target%%:*}" 2>/dev/null || true
+  tmux select-window -t "${target%.*}"
+  tmux select-pane -t "$target"
+else
+  # ペインに紐付かないセッションは新規 window で resume
+  tmux new-window -c "$cwd" "claude -r '$sid'"
+fi
