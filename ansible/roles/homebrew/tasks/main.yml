@@ -34,3 +34,50 @@
       - zsh
   environment:
     PATH: "/home/linuxbrew/.linuxbrew/bin:{{ ansible_env.PATH }}"
+
+# 既存リストと分離し、1グループの失敗が他へ波及しないようにする
+- name: homebrew | Install modern CLI tools
+  become_user: "{{ ansible_exec_user }}"
+  homebrew:
+    state: present
+    name:
+      - zoxide
+      - atuin
+      - dust
+      - duf
+      - procs
+      - btop
+      - difftastic
+  environment:
+    PATH: "/home/linuxbrew/.linuxbrew/bin:{{ ansible_env.PATH }}"
+
+- name: homebrew | Install lint and secret-scan tools
+  become_user: "{{ ansible_exec_user }}"
+  homebrew:
+    state: present
+    name:
+      - shellcheck
+      - shfmt
+      - gitleaks
+      - pre-commit
+      - yamllint
+      - ansible-lint
+  environment:
+    PATH: "/home/linuxbrew/.linuxbrew/bin:{{ ansible_env.PATH }}"
+
+# gh-dash は Homebrew core に無く tap が必要なため、本体と分離して失敗を局所化する
+- name: homebrew | Tap dlvhdr/gh-dash
+  become_user: "{{ ansible_exec_user }}"
+  homebrew_tap:
+    name: dlvhdr/gh-dash
+    state: present
+  environment:
+    PATH: "/home/linuxbrew/.linuxbrew/bin:{{ ansible_env.PATH }}"
+
+- name: homebrew | Install gh-dash
+  become_user: "{{ ansible_exec_user }}"
+  homebrew:
+    name: gh-dash
+    state: present
+  environment:
+    PATH: "/home/linuxbrew/.linuxbrew/bin:{{ ansible_env.PATH }}"
