@@ -28,7 +28,6 @@ alias pip="pip3"
 alias mt="cd ~/gitlab_local/webconnect/material_registration"
 alias taco="cd ~/gitlab_local/webconnect/taco"
 alias dot="cd /data/repos/hhazama/dotfiles"
-alias gco="git checkout"
 alias tiga="tig --all"
 
 if [ -n "$TMUX" ] && [ -n "$FZF_TMUX" ]; then
