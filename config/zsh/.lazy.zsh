@@ -79,8 +79,8 @@ zinit wait lucid light-mode as'program' for \
 autoload -Uz compinit
 autoload -Uz cdr
 autoload -Uz _zinit
+# zpcompinit は zinit 提供の compinit ラッパ。dump 先は ZINIT[ZCOMPDUMP_PATH](XDG_STATE)
 zpcompinit
-compinit
 
 if type compdef &>/dev/null; then
   _pnpm_completion () {
