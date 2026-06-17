@@ -15,4 +15,27 @@
   become_user: "{{ ansible_exec_user }}"
   shell: npm install --global \
     @openai/codex \
-    @anthropic-ai/claude-code
+    gitlab-ci-local
+
+# Claude Code は npm 版が旧式。ネイティブインストーラ(Node不要・自動更新)を使う
+- name: claude-code | Install via native installer
+  become_user: "{{ ansible_exec_user }}"
+  shell: curl -fsSL https://claude.ai/install.sh | bash
+  args:
+    creates: "{{ ansible_exec_user_home }}/.local/bin/claude"
+  environment:
+    PATH: "{{ ansible_exec_user_home }}/.local/bin:{{ ansible_env.PATH }}"
+
+# codegraph(colbymchenry/codegraph): バイナリ導入 → Claude Code へ MCP 登録
+- name: codegraph | Install binary
+  become_user: "{{ ansible_exec_user }}"
+  shell: curl -fsSL https://raw.githubusercontent.com/colbymchenry/codegraph/main/install.sh | sh
+  args:
+    creates: "{{ ansible_exec_user_home }}/.local/bin/codegraph"
+
+- name: codegraph | Register MCP into Claude Code
+  become_user: "{{ ansible_exec_user }}"
+  shell: codegraph install -y -t claude-code
+  changed_when: false
+  environment:
+    PATH: "{{ ansible_exec_user_home }}/.local/bin:{{ ansible_env.PATH }}"
