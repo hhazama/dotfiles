@@ -25,14 +25,16 @@ session_label() {
   printf '%s' "${title:-${cwd##*/}}"
 }
 
-# 1行 = 表示\ttarget\tcwd\tsessionId\tpid。rank を先頭に付けてソート後に落とす。
-# 高速化: ps は全プロセスを1回だけ、状態判定と basename は文字列展開で処理し per-row の fork を避ける。
+# 1行 = 表示\ttarget\tcwd\tsessionId\tpid。rank と startedAt を先頭に付けてソート後に落とす。
+# 並びは status 優先(waiting→busy→idle)、同 status 内は古い順(放置を上に)。
+# 高速化: ps は全プロセスを1回だけ、状態判定・age・basename は文字列/算術で処理し per-row の fork を避ける。
 emit_rows() {
   local json; json=$(claude agents --json 2>/dev/null) || return 0
   [ -n "$json" ] || return 0
 
   declare -A TTY_BY_PID PANE_BY_TTY
-  local p t tty target status pid cwd sid name rank icon branch label loc
+  local p t tty target status pid cwd sid name started rank icon branch label loc age sec now
+  now=$(date +%s%3N)
   while read -r p t; do TTY_BY_PID["$p"]="$t"; done < <(ps -eo pid=,tty=)
   if [ -n "${TMUX:-}" ]; then
     while IFS=$'\t' read -r tty target; do PANE_BY_TTY["$tty"]="$target"; done \
@@ -40,45 +42,55 @@ emit_rows() {
   fi
 
   printf '%s' "$json" \
-    | jq -r '.[] | [(.status//"unknown"), (.pid|tostring), (.cwd//""), (.sessionId//""), (.name//"")] | @tsv' \
-    | while IFS=$'\t' read -r status pid cwd sid name; do
+    | jq -r '.[] | [(.status//"unknown"), (.pid|tostring), (.cwd//""), (.sessionId//""), ((.startedAt//0)|tostring), (.name//"")] | @tsv' \
+    | while IFS=$'\t' read -r status pid cwd sid started name; do
+        started=${started:-0}
         case "$status" in
           waiting|needs_input|input) rank=0; icon="⏳";;
           busy|running)              rank=1; icon="▶";;
           idle)                      rank=2; icon="✓";;
           *)                         rank=3; icon="·";;
         esac
+        sec=$(( (now - started) / 1000 ))
+        if   [ "$started" -le 0 ];  then age="-"
+        elif [ "$sec" -lt 60 ];     then age="${sec}s"
+        elif [ "$sec" -lt 3600 ];   then age="$((sec/60))m"
+        elif [ "$sec" -lt 86400 ];  then age="$((sec/3600))h"
+        else                             age="$((sec/86400))d"
+        fi
         tty="${TTY_BY_PID[$pid]:-}"; target=""
         if [ -n "$tty" ] && [ "$tty" != "?" ]; then target="${PANE_BY_TTY[/dev/$tty]:-}"; fi
         branch=$(git -C "$cwd" rev-parse --abbrev-ref HEAD 2>/dev/null) || branch="-"
         label=$(session_label "$sid" "$cwd" "$name")
         [ "${#label}" -gt 28 ] && label="${label:0:27}…"
         loc="${target:-(no pane)}"
-        printf '%s\t%s %-26s %-22s %-20s %s\t%s\t%s\t%s\t%s\n' \
-          "$rank" "$icon" "$label" "${cwd##*/}" "$branch" "$loc" "$target" "$cwd" "$sid" "$pid"
+        printf '%s\t%s\t%s %-26s %-18s %-16s %4s %s\t%s\t%s\t%s\t%s\n' \
+          "$rank" "$started" "$icon" "$label" "${cwd##*/}" "$branch" "$age" "$loc" "$target" "$cwd" "$sid" "$pid"
       done \
-    | sort -k1,1n | cut -f2-
+    | sort -k1,1n -k2,2n | cut -f3-
 }
 
-# fzf プレビュー: セッションの会話状態(直近プロンプト/応答/mode)を transcript 末尾から表示。
-# ハイライト行のみ・カーソル移動時だけ走る遅延実行で、tail のため 1.7MB ログでも ~0.02s。
+# fzf プレビュー: セッションの会話状態(直近プロンプト/応答/mode/未コミット数)を transcript 末尾から表示。
+# ハイライト行のみ・カーソル移動時だけ走る遅延実行で、tail のため 1.7MB ログでも軽い。
 preview_session() {
-  local sid="$1" cwd="$2" f
+  local sid="$1" cwd="$2" f dirty
   f=$(ls -t ~/.claude/projects/*/"$sid".jsonl 2>/dev/null | head -n1)
+  dirty=$(git -C "$cwd" status --porcelain 2>/dev/null | wc -l | tr -d ' ')
   if [ -z "$f" ]; then
     git -C "$cwd" -c color.ui=always log --oneline -10 2>/dev/null || ls -la "$cwd"
     return
   fi
-  # transcript 末尾を1回の jq でまとめて整形(プロセス起動を1回に抑える)
-  tail -n 200 "$f" | jq -rs --arg cwd "$cwd" '
+  # transcript 末尾を1回の jq でまとめて整形。mode は normal のとき省略し plan/acceptEdits だけ出す。
+  tail -n 200 "$f" | jq -rs --arg cwd "$cwd" --arg dirty "$dirty" '
     def lastof($t): [.[]|select(.type==$t)] | last;
     (lastof("mode").mode // "?") as $mode |
     (lastof("permission-mode").permissionMode // "?") as $pm |
+    (if ($mode=="normal" or $mode=="?") then "" else "\($mode) / " end) as $mpart |
     (lastof("last-prompt").lastPrompt // "(なし)") as $prompt |
     ([.[]|select(.type=="assistant")|select(any(.message.content[]?; .type=="text"))] | last) as $a |
     (($a.message.content // []) | map(select(.type=="text")|.text) | join("\n")) as $r0 |
     (if ($r0|length)==0 then "(なし)" else $r0[0:1200] end) as $reply |
-    "[1m\($cwd)[0m  (mode: \($mode) / \($pm))\n\n[1;36m▶ 直近のプロンプト[0m\n\($prompt)\n\n[1;32m◀ 直近の応答[0m\n\($reply)"
+    "[1m\($cwd)[0m  [\($mpart)\($pm)]  未コミット:\($dirty)件\n\n[1;36m▶ 直近のプロンプト[0m\n\($prompt)\n\n[1;32m◀ 直近の応答[0m\n\($reply)"
   ' 2>/dev/null
 }
 
