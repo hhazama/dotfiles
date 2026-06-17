@@ -81,10 +81,6 @@ vim.opt.wrap = true
 -- 入力中のコマンドを表示
 vim.opt.showcmd = true
 
--- floating windowの設定
-vim.opt.pumblend = 10
-vim.opt.winblend = 10
-
 -- swapfileの設定
 vim.opt.swapfile = true -- スワップファイルを有効（デフォルト）
 
@@ -182,17 +178,6 @@ require('lazy').setup {
       local dashboard = require 'alpha.themes.dashboard'
 
       -- header
-      dashboard.section.header.val = {
-        '                                                     ',
-        '  ███╗   ██╗███████╗ ██████╗ ██╗   ██╗██╗███╗   ███╗ ',
-        '  ████╗  ██║██╔════╝██╔═══██╗██║   ██║██║████╗ ████║ ',
-        '  ██╔██╗ ██║█████╗  ██║   ██║██║   ██║██║██╔████╔██║ ',
-        '  ██║╚██╗██║██╔══╝  ██║   ██║╚██╗ ██╔╝██║██║╚██╔╝██║ ',
-        '  ██║ ╚████║███████╗╚██████╔╝ ╚████╔╝ ██║██║ ╚═╝ ██║ ',
-        '  ╚═╝  ╚═══╝╚══════╝ ╚═════╝   ╚═══╝  ╚═╝╚═╝     ╚═╝ ',
-        '                                                     ',
-      }
-
       dashboard.section.header.val = {
         '⠀⠀⠀⠀⠀⠀⠀⣀⣤⠶⠖⠒⠲⣤⡀⠀⠀⠀⠀⠀⠀⠀⣠⠴⠖⠒⠶⢤⣄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀',
         '⠀⠀⠀⣠⡤⠖⠋⠉⠀⠀⢀⡀⠀⠀⢻⣄⠀⠀⠀⠀⢀⣼⠁⠀⢀⡀⠀⠀⠀⠉⠙⠒⢦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⠤⠤⠤⢤⣄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀',
@@ -336,9 +321,6 @@ require('lazy').setup {
     config = function()
       -- [[ Configure Telescope ]]
       require('telescope').setup {
-        pickers = {
-          find_command = '/home/user/.local/share/zinit/plugins/BurntSushi---ripgrep/ripgrep-14.1.0-x86_64-unknown-linux-musl/rg',
-        },
         extensions = {
           ['ui-select'] = {
             require('telescope.themes').get_dropdown(),
