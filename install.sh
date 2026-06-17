@@ -30,7 +30,9 @@ echo "#### Make sure you can connect to ${GIT_HOST} ####"
 ssh -T git@${GIT_HOST} || true
 
 DATA_DIR=${DATA_DIR:-"/data"}
-sudo mkdir -p -m 777 /data
+sudo mkdir -p "$DATA_DIR"
+sudo chmod 755 "$DATA_DIR"
+sudo chown "${SUDO_USER:-$USER}" "$DATA_DIR"
 
 echo "#### Clone dotfiles repository ####"
 INSTALL_DIR=${DATA_DIR}/repos/${GIT_USER}/dotfiles
