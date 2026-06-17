@@ -100,3 +100,7 @@ if type compdef &>/dev/null; then
 fi
 
 eval "$(gh completion -s zsh)"
+
+### zoxide ###
+# frecency ベースの cd。z/zi を追加(対話選択の j/jj とは用途を分ける)
+(( ${+commands[zoxide]} )) && eval "$(zoxide init zsh)"
