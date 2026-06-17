@@ -27,7 +27,6 @@ fpath=(
 
 eval "$(brew shellenv)"
 eval "$(~/.local/bin/mise activate zsh)"
-source "$HOME/.rye/env"
 
 # ===== 基本効率化 =====
 setopt AUTO_CD                      # ディレクトリ名だけでcd

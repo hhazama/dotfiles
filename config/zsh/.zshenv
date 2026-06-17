@@ -91,9 +91,6 @@ export PNPM_HOME="$XDG_DATA_HOME/pnpm"
 ### Python ###
 export PYTHONSTARTUP="$XDG_CONFIG_HOME/python/startup.py"
 
-### pipenv ###
-export PIPENV_VENV_IN_PROJECT=true
-
 ### pylint ###
 export PYLINTHOME="$XDG_CACHE_HOME/pylint"
 

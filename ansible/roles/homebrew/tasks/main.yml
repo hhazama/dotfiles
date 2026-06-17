@@ -27,7 +27,6 @@
       - ripgrep
       - navi
       - neovim
-      - pipenv
       - tmux
       - uv
       - yq
