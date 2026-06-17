@@ -65,19 +65,11 @@
   environment:
     PATH: "/home/linuxbrew/.linuxbrew/bin:{{ ansible_env.PATH }}"
 
-# gh-dash は Homebrew core に無く tap が必要なため、本体と分離して失敗を局所化する
-- name: homebrew | Tap dlvhdr/gh-dash
+# gh-dash は Homebrew に formula/tap が無いため gh 拡張として導入する
+- name: gh-dash | Install via gh extension
   become_user: "{{ ansible_exec_user }}"
-  homebrew_tap:
-    name: dlvhdr/gh-dash
-    state: present
-  environment:
-    PATH: "/home/linuxbrew/.linuxbrew/bin:{{ ansible_env.PATH }}"
-
-- name: homebrew | Install gh-dash
-  become_user: "{{ ansible_exec_user }}"
-  homebrew:
-    name: gh-dash
-    state: present
+  command: gh extension install dlvhdr/gh-dash
+  args:
+    creates: "{{ ansible_exec_user_home }}/.local/share/gh/extensions/gh-dash"
   environment:
     PATH: "/home/linuxbrew/.linuxbrew/bin:{{ ansible_env.PATH }}"
