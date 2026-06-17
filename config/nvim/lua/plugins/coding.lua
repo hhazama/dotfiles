@@ -1,10 +1,4 @@
 return {
-  -- GitHub Copilot
-  {
-    'github/copilot.vim',
-    lazy = false,
-  },
-
   {
     'epwalsh/obsidian.nvim',
     version = '*',

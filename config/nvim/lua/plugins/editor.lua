@@ -101,7 +101,18 @@ return {
     'okuuva/auto-save.nvim',
     cmd = 'ASToggle', -- optional for lazy loading on command
     event = { 'BufLeave', 'FocusLost' }, -- optional for lazy loading on trigger events
-    opts = {},
+    opts = {
+      -- claudecode の差分バッファ(buftype=acwrite)は自動保存しない:承認待ちなしに差分が確定するのを防ぐ
+      condition = function(buf)
+        if vim.bo[buf].buftype == 'acwrite' then
+          return false
+        end
+        if vim.b[buf].claudecode_diff_new_win ~= nil then
+          return false
+        end
+        return true
+      end,
+    },
   },
 
   -- Hop
