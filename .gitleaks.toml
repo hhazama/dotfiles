@@ -1,0 +1,12 @@
+# 既定ルールを継承しつつ、プレースホルダ・環境固有ファイル・生成物を除外する
+[extend]
+useDefault = true
+
+[allowlist]
+description = "サンプル/環境固有/生成物"
+paths = [
+    '''config/zsh/conf\.d/local\.zsh''',
+    '''config/zsh/conf\.d/local\.zsh\.sample''',
+    '''config/zsh/\.zsh_history''',
+    '''config/navi/navi\.log''',
+]
