@@ -13,9 +13,7 @@
 
 - name: mise | npm install
   become_user: "{{ ansible_exec_user }}"
-  shell: npm install --global \
-    @openai/codex \
-    gitlab-ci-local
+  shell: npm install --global gitlab-ci-local
 
 # Claude Code は npm 版が旧式。ネイティブインストーラ(Node不要・自動更新)を使う
 - name: claude-code | Install via native installer
@@ -23,6 +21,15 @@
   shell: curl -fsSL https://claude.ai/install.sh | bash
   args:
     creates: "{{ ansible_exec_user_home }}/.local/bin/claude"
+  environment:
+    PATH: "{{ ansible_exec_user_home }}/.local/bin:{{ ansible_env.PATH }}"
+
+# codex も npm 版でなく公式ネイティブインストーラを使う(Linux対応、brew は mac cask 専用)
+- name: codex | Install via native installer
+  become_user: "{{ ansible_exec_user }}"
+  shell: curl -fsSL https://chatgpt.com/codex/install.sh | sh
+  args:
+    creates: "{{ ansible_exec_user_home }}/.local/bin/codex"
   environment:
     PATH: "{{ ansible_exec_user_home }}/.local/bin:{{ ansible_env.PATH }}"
 
