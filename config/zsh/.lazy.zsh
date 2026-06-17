@@ -69,7 +69,8 @@ __zeno_atload() {
     bindkey ' ' zeno-auto-snippet
     bindkey '^M' zeno-auto-snippet-and-accept-line
     bindkey '^P' zeno-completion
-    bindkey "^R" zeno-history-selection # C-r
+    # atuin 在時は atuin が ^R を握るため zeno には割り当てない
+    (( ${+commands[atuin]} )) || bindkey "^R" zeno-history-selection # C-r
 }
 # NOTE denoがないとインストールできない
 if (( ${+commands[deno]} )); then
@@ -112,3 +113,7 @@ eval "$(gh completion -s zsh)"
 ### zoxide ###
 # frecency ベースの cd。z/zi を追加(対話選択の j/jj とは用途を分ける)
 (( ${+commands[zoxide]} )) && eval "$(zoxide init zsh)"
+
+### atuin ###
+# ^R は atuin に委譲(zeno 側の ^R は atuin 在時のみ外す)。矢印は history-substring-search を残すため up-arrow は無効化
+(( ${+commands[atuin]} )) && eval "$(atuin init zsh --disable-up-arrow)"
