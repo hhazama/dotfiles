@@ -1,10 +1,12 @@
 ---
 - name: mise | Install mise
+  become_user: "{{ ansible_exec_user }}"
   shell: curl https://mise.run | sh
   args:
     creates: "{{ ansible_exec_user_home }}/.local/bin/mise"
 
 - name: mise | Install tools
+  become_user: "{{ ansible_exec_user }}"
   shell: "mise install"
   environment:
     PATH: "{{ ansible_exec_user_home }}/.local/bin:{{ ansible_env.PATH }}"
