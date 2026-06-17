@@ -37,19 +37,3 @@ if [ -n "$TMUX" ] && [ -n "$FZF_TMUX" ]; then
 	}
 	alias fzf="fzf-tmux $FZF_TMUX_OPTS -- "
 fi
-
-
-alias mr-review='f(){ claude "MR $1 をレビューしてください。
-
-MR情報の取得:
-- glab mr view $1
-- glab mr diff $1
-
-観点:
-1. バグ・エッジケース
-2. 可読性・設計
-3. パフォーマンス
-4. セキュリティ
-
-buildやlintなど時間のかかる処理は実行しないでください。
-"; }; f'
