@@ -27,10 +27,12 @@
           - git-lfs
           - git-delta
           - glab
+          - ghq
           - hyperfine
           - lazygit
           - lazydocker
           - ripgrep
+          - rtk
           - navi
           - neovim
           - tmux
