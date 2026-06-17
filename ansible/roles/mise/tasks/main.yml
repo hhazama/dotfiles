@@ -14,4 +14,3 @@
   shell: npm install --global \
     @openai/codex \
     @anthropic-ai/claude-code
-  
