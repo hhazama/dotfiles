@@ -1,0 +1,16 @@
+# 不要ファイル
+1
+todo
+
+# 機密情報を含む可能性のあるファイル
+config/claude-settings/commands/fresh2026-daily-report.md
+config/claude-settings/commands/clipboard.md
+config/claude-settings/commands/skill-codex.md
+config/navi/navi.log
+
+# レガシーのルート .zshrc(実体は config/zsh/.zshrc。ルート直下のみ無視)
+/.zshrc
+
+# 生成物(補完ダンプ)
+*.zcompdump
+*.zcompdump.*
