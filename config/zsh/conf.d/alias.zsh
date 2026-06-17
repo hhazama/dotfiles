@@ -1,13 +1,10 @@
 ### Aliases ###
 alias so='source ${ZDOTDIR}/.zshrc'
 
-alias la='ls -a'
-alias ll='ls -al'
-alias exa='eza'
-alias ls='exa --group-directories-first'
-alias la='exa --group-directories-first -a'
-alias ll='exa --group-directories-first -al --header --color-scale --icons --time-style=long-iso'
-alias tree='exa --group-directories-first -T --icons'
+alias ls='eza --group-directories-first'
+alias la='eza --group-directories-first -a'
+alias ll='eza --group-directories-first -al --header --color-scale --icons --time-style=long-iso'
+alias tree='eza --group-directories-first -T --icons'
 
 alias cp='cp -i'
 alias mv='mv -i'
