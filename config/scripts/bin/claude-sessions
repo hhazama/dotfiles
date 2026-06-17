@@ -105,11 +105,20 @@ kill_session() {
   esac
 }
 
+# fzf の ctrl-n から呼ばれる: zoxide の最近ディレクトリを選んで新規 window で claude 起動。
+new_session() {
+  command -v zoxide >/dev/null 2>&1 || { echo "zoxide not found" >&2; return; }
+  local dir
+  dir=$(zoxide query -l 2>/dev/null | fzf --prompt='new claude in> ' --height=100%) || return
+  [ -n "$dir" ] && tmux new-window -c "$dir" "claude"
+}
+
 case "${1:-}" in
   --rows)    emit_rows; exit 0 ;;
   --list)    emit_rows | cut -f1; exit 0 ;;
   --preview) preview_session "${2:-}" "${3:-}"; exit 0 ;;
   --kill)    kill_session "${2:-}" "${3:-}"; exit 0 ;;
+  --new)     new_session; exit 0 ;;
 esac
 if [ ! -t 1 ]; then emit_rows | cut -f1; exit 0; fi
 
@@ -118,10 +127,11 @@ if [ ! -t 1 ]; then emit_rows | cut -f1; exit 0; fi
 sel=$(fzf --ansi --with-nth=1 --delimiter='\t' \
         --prompt='claude sessions> ' --header='loading…' \
         --bind "start:reload($SELF --rows)" \
-        --bind 'load:change-header(enter:jump  ^X:kill  ^Y:copy cwd  ^G:lazygit)' \
+        --bind 'load:change-header(enter:jump  ^X:kill  ^Y:copy  ^G:lazygit  ^N:new)' \
         --bind 'ctrl-y:execute-silent(printf %s {3} | win32yank -i)' \
         --bind 'ctrl-g:execute(lazygit -p {3})' \
         --bind "ctrl-x:execute($SELF --kill {5} {4})+reload($SELF --rows)" \
+        --bind "ctrl-n:execute($SELF --new)+abort" \
         --preview "$SELF --preview {4} {3}" \
         --preview-window=right,55%,wrap </dev/null) || exit 0
 [ -n "$sel" ] || exit 0
