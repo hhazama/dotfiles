@@ -32,9 +32,17 @@ zinit wait'1' lucid light-mode for \
     @'hlissner/zsh-autopair'
 
 ### zsh plugins ###
+# completions は compinit より前に fpath 登録する必要があるため blockf で先に読む
 zinit wait lucid blockf light-mode for \
 	atload'async_init' @'mafredri/zsh-async' \
-	@'zsh-users/zsh-completions' \
+	@'zsh-users/zsh-completions'
+
+### fzf-tab ###
+# compinit 後・widget を wrap する autosuggestions/fast-syntax-highlighting より前に読む
+zinit wait lucid light-mode for \
+	@'Aloxaf/fzf-tab'
+
+zinit wait lucid light-mode for \
 	@'zsh-users/zsh-autosuggestions' \
 	@'zdharma-continuum/fast-syntax-highlighting'
 
