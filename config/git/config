@@ -3,3 +3,12 @@ path = conf.d/core.conf
 path = conf.d/alias.conf
 path = conf.d/delta.conf
 path = conf.d/user.conf
+[credential "http://gitlab.fdev"]
+	helper = 
+	helper = !/home/linuxbrew/.linuxbrew/Cellar/glab/1.77.0/bin/glab auth git-credential
+[credential "https://github.com"]
+	helper = 
+	helper = !/home/linuxbrew/.linuxbrew/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper = 
+	helper = !/home/linuxbrew/.linuxbrew/bin/gh auth git-credential

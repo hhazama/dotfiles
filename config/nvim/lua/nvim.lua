@@ -303,6 +303,7 @@ require('lazy').setup {
         ['<leader>w'] = { name = '[W]orkspace', _ = 'which_key_ignore' },
         ['<leader>t'] = { name = '[T]oggle', _ = 'which_key_ignore' },
         ['<leader>h'] = { name = 'Git [H]unk', _ = 'which_key_ignore' },
+        ['<leader>g'] = { name = '[G]it / Diffview', _ = 'which_key_ignore' },
         ['<leader>b'] = { name = '[B]uffer', _ = 'which_key_ignore' },
       }
       -- visual mode
@@ -1008,6 +1009,47 @@ require('lazy').setup {
       }
     end,
   },
+  -- Diffview: GitLab MRライクな差分ビュー
+  {
+    'sindrets/diffview.nvim',
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    cmd = { 'DiffviewOpen', 'DiffviewClose', 'DiffviewFileHistory', 'DiffviewToggleFiles', 'DiffviewFocusFiles', 'DiffviewRefresh' },
+    keys = {
+      -- dev との差分(MRと等価)
+      { '<leader>gd', '<cmd>DiffviewOpen dev...HEAD<cr>', desc = '[G]it [D]iff vs dev' },
+      -- 任意の ref と比較したい時はプロンプトで入力(origin/dev, main, HEAD~3 等)
+      {
+        '<leader>gr',
+        function()
+          local ref = vim.fn.input('Diffview ref (例: origin/dev, main, HEAD~3): ')
+          if ref ~= '' then
+            vim.cmd('DiffviewOpen ' .. ref)
+          end
+        end,
+        desc = '[G]it diff vs [R]ef (任意指定)',
+      },
+      { '<leader>gq', '<cmd>DiffviewClose<cr>', desc = '[G]it diffview [Q]uit' },
+      -- 現在ファイルの履歴
+      { '<leader>gf', '<cmd>DiffviewFileHistory %<cr>', desc = '[G]it [F]ile history (current)' },
+    },
+    config = function()
+      require('diffview').setup {
+        enhanced_diff_hl = true, -- 同一行内の差分箇所を強調
+        view = {
+          merge_tool = {
+            layout = 'diff3_mixed', -- マージコンフリクト時の3-way表示
+          },
+        },
+        file_panel = {
+          listing_style = 'tree', -- ファイル一覧をツリー表示(GitLabに近い)
+          win_config = {
+            width = 40,
+          },
+        },
+      }
+    end,
+  },
+
   {
     'epwalsh/obsidian.nvim',
     version = '*',

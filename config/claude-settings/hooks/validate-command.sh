@@ -33,8 +33,10 @@ fi
 
 # .envファイルの読み取り検知
 if echo "$COMMAND" | grep -qE '(cat|head|tail|less|more|bat)\s+.*\.env(\s|$|\.)|source\s+.*\.env'; then
-  echo '{"decision":"block","reason":".envファイルの内容読み取りは禁止されています"}'
-  exit 0
+  if ! echo "$COMMAND" | grep -qE 'source\s+tools/access_db/\.env(\s|$)'; then
+    echo '{"decision":"block","reason":".envファイルの内容読み取りは禁止されています"}'
+    exit 0
+  fi
 fi
 
 # Git force操作の検知（フラグがどの位置にあってもブロック）

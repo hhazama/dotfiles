@@ -78,6 +78,9 @@ setopt CHECK_JOBS               # exit時にジョブがあれば確認
 setopt PROMPT_SUBST              # プロンプトで変数展開・コマンド置換を有効
 setopt TRANSIENT_RPROMPT         # 右プロンプトを一時的に隠す
 
+# ===== キーバインド =====
+# 明示しないと $EDITOR/$VISUAL から推定され、nvim/vim だと vi モードに倒れる
+bindkey -e
 
 zshaddhistory() {
     emulate -L zsh
