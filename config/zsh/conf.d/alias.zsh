@@ -22,8 +22,8 @@ alias wget='wget --hsts-file="$XDG_STATE_HOME/wget-hsts"'
 alias python="python3"
 alias pip="pip3"
 
-alias mt="cd ~/gitlab_local/webconnect/material_registration"
-alias taco="cd ~/gitlab_local/webconnect/taco"
+alias mt="cd /data/git/webconnect/material_registration"
+alias taco="cd /data/git/webconnect/taco"
 alias dot="cd /data/repos/hhazama/dotfiles"
 alias tiga="tig --all"
 
