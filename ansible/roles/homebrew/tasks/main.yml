@@ -17,6 +17,8 @@
         state: present
         name:
           - awscli
+          - aws-amplify
+          - aws-sam-cli
           - bat
           - docker-completion
           - eza
@@ -29,6 +31,7 @@
           - glab
           - ghq
           - hyperfine
+          - jira-cli
           - lazygit
           - lazydocker
           - ripgrep
