@@ -44,7 +44,7 @@ ansible-playbook -i ./hosts/local --extra-vars ansible_exec_user=$USER --extra-v
     - `zsh`: zsh の設定
     - `mise`: mise(ランタイムバージョン管理ツール)のセットアップ
     - `ssh`: SSH 設定
-    - その他: `rye`, `awscli`, `win32yank`, `sudoers`
+    - その他: `win32yank`, `sudoers`
 
 - **config/**: 各種ツールの設定ファイル
   - Ansible の `links` ロールにより `~/.config/` 配下にシンボリックリンクが作成される
