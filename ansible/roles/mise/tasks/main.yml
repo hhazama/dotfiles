@@ -13,7 +13,10 @@
 
 - name: mise | npm install
   become_user: "{{ ansible_exec_user }}"
-  shell: npm install --global gitlab-ci-local
+  shell: npm install --global \
+    @google/gemini-cli \
+    @playwright/cli \
+    gitlab-ci-local
 
 # Claude Code は npm 版が旧式。ネイティブインストーラ(Node不要・自動更新)を使う
 - name: claude-code | Install via native installer
