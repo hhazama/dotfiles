@@ -10,6 +10,7 @@ $ bash <(curl -sL https://raw.githubusercontent.com/hhazama/dotfiles/main/instal
 
 - Ansible で設定を適用する。zsh の入口は `~/.zshenv`(→ `config/zsh/.zshenv`)で、`ZDOTDIR=~/.config/zsh` を設定し `$ZDOTDIR/.zshrc` 以下を読み込む。
 - `config/` 配下の各ディレクトリは `links` ロールで `~/.config/` にシンボリックリンクされる。
+- 導入される CLI ツール・zsh プラグイン・nvim プラグインの一覧と1行説明は [docs/TOOLS.md](docs/TOOLS.md) を参照。
 
 ## 開発
 
