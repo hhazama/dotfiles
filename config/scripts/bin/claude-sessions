@@ -11,6 +11,19 @@ command -v jq >/dev/null 2>&1 || { echo "jq not found" >&2; exit 1; }
 
 SELF="$(command -v -- "$0" 2>/dev/null)"; [ -n "$SELF" ] || SELF="$0"
 
+# セッションの表示名。/rename 等で付けた name を最優先。無ければ transcript の
+# ai-title(会話内容から自動生成される日本語タイトル)、それも無ければ cwd 名。
+session_label() {
+  local sid="$1" cwd="$2" name="$3" files f title
+  [ -n "$name" ] && { printf '%s' "$name"; return; }
+  files=( ~/.claude/projects/*/"$sid".jsonl )
+  f="${files[0]}"
+  if [ -n "$sid" ] && [ -f "$f" ]; then
+    title=$(grep -h '"type":"ai-title"' "$f" 2>/dev/null | tail -n1 | jq -r '.aiTitle // empty' 2>/dev/null)
+  fi
+  printf '%s' "${title:-${cwd##*/}}"
+}
+
 # 1行 = 表示\ttarget\tcwd\tsessionId。rank を先頭に付けてソート後に落とす。
 # 高速化: ps は全プロセスを1回だけ、状態判定と basename は文字列展開で処理し per-row の fork を避ける。
 emit_rows() {
@@ -37,7 +50,8 @@ emit_rows() {
         tty="${TTY_BY_PID[$pid]:-}"; target=""
         if [ -n "$tty" ] && [ "$tty" != "?" ]; then target="${PANE_BY_TTY[/dev/$tty]:-}"; fi
         branch=$(git -C "$cwd" rev-parse --abbrev-ref HEAD 2>/dev/null) || branch="-"
-        label="${name:-${cwd##*/}}"
+        label=$(session_label "$sid" "$cwd" "$name")
+        [ "${#label}" -gt 28 ] && label="${label:0:27}…"
         loc="${target:-(no pane)}"
         printf '%s\t%s %-26s %-22s %-20s %s\t%s\t%s\t%s\n' \
           "$rank" "$icon" "$label" "${cwd##*/}" "$branch" "$loc" "$target" "$cwd" "$sid"
