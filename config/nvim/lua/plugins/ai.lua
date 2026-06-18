@@ -64,20 +64,13 @@ return {
     },
   },
 
-  -- インライン補完: copilot.vim を Lua 実装に移行(高速・nvim-cmp と共存)
+  -- copilot.vim を Lua 実装に移行。インライン補完(ghost text)は Tab を奪うため無効化し、:Copilot コマンドのみ利用
   {
     'zbirenbaum/copilot.lua',
     cmd = 'Copilot',
     event = 'InsertEnter',
     opts = {
-      suggestion = {
-        enabled = true,
-        auto_trigger = true,
-        keymap = {
-          accept = '<Tab>',
-        },
-      },
-      -- ghost text のみ使う(分割パネルは無効)
+      suggestion = { enabled = false },
       panel = { enabled = false },
     },
   },
