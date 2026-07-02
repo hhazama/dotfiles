@@ -1,0 +1,10 @@
+# make lint で使用。個人 dotfiles 向けに production プロファイルの厳格ルールを緩める
+profile: basic
+
+exclude_paths:
+  - config/
+  - .git/
+
+skip_list:
+  - name[template] # タスク名の変数展開は許容
+  - var-naming[no-role-prefix] # ロール変数の prefix 強制は不要

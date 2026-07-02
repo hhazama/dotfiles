@@ -1,0 +1,17 @@
+# ローカル専用設定。履歴はこのマシンの ~/.local/share/atuin/ にのみ保存し外部へ送らない。
+
+## 同期・ネットワーク(秘密が混ざりうる履歴を外部送信させないため明示的に無効化)
+# atuin login/register しても自動アップロードしない
+auto_sync = false
+# 起動時のバージョン更新チェック(ネットワークアクセス)を無効化
+update_check = false
+
+## 検索 UI
+search_mode = "fuzzy"
+# 既定スコープ。検索画面で Ctrl-R を押すと global/host/session/directory を切替
+filter_mode = "global"
+# Enter で即実行せず行に展開(誤実行防止。zeno の従来挙動に近い)
+enter_accept = false
+# フルスクリーンでなく下部にコンパクト表示
+style = "compact"
+inline_height = 20

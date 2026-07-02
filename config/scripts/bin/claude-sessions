@@ -1,0 +1,150 @@
+#!/usr/bin/env bash
+# Claude Code セッション一覧ランチャー。
+# `claude agents --json` と tmux ペインを pid→tty で突き合わせ、状態付き一覧から選んでジャンプする。
+#   (引数なし/TTY) : fzf ポップアップ。枠を即時表示し、データは start:reload で後追い表示
+#                    enter:ジャンプ / ctrl-x:kill / ctrl-y:cwdコピー / ctrl-g:lazygit
+#   --rows         : fzf 用の生データ(隠しフィールド付き)を出力
+#   --list / 非TTY : 表示列のみ出力(検証・スクリプト用)
+set -uo pipefail
+
+command -v claude >/dev/null 2>&1 || { echo "claude not found" >&2; exit 1; }
+command -v jq >/dev/null 2>&1 || { echo "jq not found" >&2; exit 1; }
+
+SELF="$(command -v -- "$0" 2>/dev/null)"; [ -n "$SELF" ] || SELF="$0"
+
+# セッションの表示名。/rename 等で付けた name を最優先。無ければ transcript の
+# ai-title(会話内容から自動生成される日本語タイトル)、それも無ければ cwd 名。
+session_label() {
+  local sid="$1" cwd="$2" name="$3" files f title
+  [ -n "$name" ] && { printf '%s' "$name"; return; }
+  files=( ~/.claude/projects/*/"$sid".jsonl )
+  f="${files[0]}"
+  if [ -n "$sid" ] && [ -f "$f" ]; then
+    title=$(grep -h '"type":"ai-title"' "$f" 2>/dev/null | tail -n1 | jq -r '.aiTitle // empty' 2>/dev/null)
+  fi
+  printf '%s' "${title:-${cwd##*/}}"
+}
+
+# 1行 = 表示\ttarget\tcwd\tsessionId\tpid。rank と startedAt を先頭に付けてソート後に落とす。
+# 並びは status 優先(waiting→busy→idle)、同 status 内は古い順(放置を上に)。
+# 高速化: ps は全プロセスを1回だけ、状態判定・age・basename は文字列/算術で処理し per-row の fork を避ける。
+emit_rows() {
+  local json; json=$(claude agents --json 2>/dev/null) || return 0
+  [ -n "$json" ] || return 0
+
+  declare -A TTY_BY_PID PANE_BY_TTY
+  local p t tty target status pid cwd sid name started rank icon branch label loc age sec now
+  now=$(date +%s%3N)
+  while read -r p t; do TTY_BY_PID["$p"]="$t"; done < <(ps -eo pid=,tty=)
+  if [ -n "${TMUX:-}" ]; then
+    while IFS=$'\t' read -r tty target; do PANE_BY_TTY["$tty"]="$target"; done \
+      < <(tmux list-panes -a -F '#{pane_tty}	#{session_name}:#{window_index}.#{pane_index}')
+  fi
+
+  printf '%s' "$json" \
+    | jq -r '.[] | [(.status//"unknown"), (.pid|tostring), (.cwd//""), (.sessionId//""), ((.startedAt//0)|tostring), (.name//"")] | @tsv' \
+    | while IFS=$'\t' read -r status pid cwd sid started name; do
+        started=${started:-0}
+        case "$status" in
+          waiting|needs_input|input) rank=0; icon="⏳";;
+          busy|running)              rank=1; icon="▶";;
+          idle)                      rank=2; icon="✓";;
+          *)                         rank=3; icon="·";;
+        esac
+        sec=$(( (now - started) / 1000 ))
+        if   [ "$started" -le 0 ];  then age="-"
+        elif [ "$sec" -lt 60 ];     then age="${sec}s"
+        elif [ "$sec" -lt 3600 ];   then age="$((sec/60))m"
+        elif [ "$sec" -lt 86400 ];  then age="$((sec/3600))h"
+        else                             age="$((sec/86400))d"
+        fi
+        tty="${TTY_BY_PID[$pid]:-}"; target=""
+        if [ -n "$tty" ] && [ "$tty" != "?" ]; then target="${PANE_BY_TTY[/dev/$tty]:-}"; fi
+        branch=$(git -C "$cwd" rev-parse --abbrev-ref HEAD 2>/dev/null) || branch="-"
+        label=$(session_label "$sid" "$cwd" "$name")
+        [ "${#label}" -gt 28 ] && label="${label:0:27}…"
+        loc="${target:-(no pane)}"
+        printf '%s\t%s\t%s %-26s %-18s %-16s %4s %s\t%s\t%s\t%s\t%s\n' \
+          "$rank" "$started" "$icon" "$label" "${cwd##*/}" "$branch" "$age" "$loc" "$target" "$cwd" "$sid" "$pid"
+      done \
+    | sort -k1,1n -k2,2n | cut -f3-
+}
+
+# fzf プレビュー: セッションの会話状態(直近プロンプト/応答/mode/未コミット数)を transcript 末尾から表示。
+# ハイライト行のみ・カーソル移動時だけ走る遅延実行で、tail のため 1.7MB ログでも軽い。
+preview_session() {
+  local sid="$1" cwd="$2" f dirty
+  f=$(ls -t ~/.claude/projects/*/"$sid".jsonl 2>/dev/null | head -n1)
+  dirty=$(git -C "$cwd" status --porcelain 2>/dev/null | wc -l | tr -d ' ')
+  if [ -z "$f" ]; then
+    git -C "$cwd" -c color.ui=always log --oneline -10 2>/dev/null || ls -la "$cwd"
+    return
+  fi
+  # transcript 末尾を1回の jq でまとめて整形。mode は normal のとき省略し plan/acceptEdits だけ出す。
+  tail -n 200 "$f" | jq -rs --arg cwd "$cwd" --arg dirty "$dirty" '
+    def lastof($t): [.[]|select(.type==$t)] | last;
+    (lastof("mode").mode // "?") as $mode |
+    (lastof("permission-mode").permissionMode // "?") as $pm |
+    (if ($mode=="normal" or $mode=="?") then "" else "\($mode) / " end) as $mpart |
+    (lastof("last-prompt").lastPrompt // "(なし)") as $prompt |
+    ([.[]|select(.type=="assistant")|select(any(.message.content[]?; .type=="text"))] | last) as $a |
+    (($a.message.content // []) | map(select(.type=="text")|.text) | join("\n")) as $r0 |
+    (if ($r0|length)==0 then "(なし)" else $r0[0:1200] end) as $reply |
+    "[1m\($cwd)[0m  [\($mpart)\($pm)]  未コミット:\($dirty)件\n\n[1;36m▶ 直近のプロンプト[0m\n\($prompt)\n\n[1;32m◀ 直近の応答[0m\n\($reply)"
+  ' 2>/dev/null
+}
+
+# fzf の ctrl-x から呼ばれる: 確認の上 pid を kill する(execute が tty を渡すので read 可)。
+kill_session() {
+  local pid="$1" sid="$2" a
+  printf 'kill pid %s (session %s)? [y/N] ' "$pid" "$sid"
+  read -r a
+  case "$a" in
+    y|Y) kill "$pid" 2>/dev/null && echo "killed $pid" || echo "kill failed" ;;
+    *)   echo "cancelled" ;;
+  esac
+}
+
+# fzf の ctrl-n から呼ばれる: zoxide の最近ディレクトリを選んで新規 window で claude 起動。
+new_session() {
+  command -v zoxide >/dev/null 2>&1 || { echo "zoxide not found" >&2; return; }
+  local dir
+  dir=$(zoxide query -l 2>/dev/null | fzf --prompt='new claude in> ' --height=100%) || return
+  [ -n "$dir" ] && tmux new-window -c "$dir" "claude"
+}
+
+case "${1:-}" in
+  --rows)    emit_rows; exit 0 ;;
+  --list)    emit_rows | cut -f1; exit 0 ;;
+  --preview) preview_session "${2:-}" "${3:-}"; exit 0 ;;
+  --kill)    kill_session "${2:-}" "${3:-}"; exit 0 ;;
+  --new)     new_session; exit 0 ;;
+esac
+if [ ! -t 1 ]; then emit_rows | cut -f1; exit 0; fi
+
+# 枠を即時表示し、行は start:reload で流し込む(claude agents の起動待ちを枠表示の後ろに隠す)。
+# 隠しフィールド: {2}=target {3}=cwd {4}=sessionId {5}=pid
+sel=$(fzf --ansi --with-nth=1 --delimiter='\t' \
+        --prompt='claude sessions> ' --header='loading…' \
+        --bind "start:reload($SELF --rows)" \
+        --bind 'load:change-header(enter:jump  ^X:kill  ^Y:copy  ^G:lazygit  ^N:new)' \
+        --bind 'ctrl-y:execute-silent(printf %s {3} | win32yank -i)' \
+        --bind 'ctrl-g:execute(lazygit -p {3})' \
+        --bind "ctrl-x:execute($SELF --kill {5} {4})+reload($SELF --rows)" \
+        --bind "ctrl-n:execute($SELF --new)+abort" \
+        --preview "$SELF --preview {4} {3}" \
+        --preview-window=right,55%,wrap </dev/null) || exit 0
+[ -n "$sel" ] || exit 0
+
+target=$(printf '%s' "$sel" | cut -f2)
+cwd=$(printf '%s' "$sel" | cut -f3)
+sid=$(printf '%s' "$sel" | cut -f4)
+
+if [ -n "$target" ]; then
+  tmux switch-client -t "${target%%:*}" 2>/dev/null || true
+  tmux select-window -t "${target%.*}"
+  tmux select-pane -t "$target"
+else
+  # ペインに紐付かないセッションは新規 window で resume
+  tmux new-window -c "$cwd" "claude -r '$sid'"
+fi

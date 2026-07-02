@@ -8,3 +8,7 @@ bindkey "^[[3;5~" forward-kill-word # Ctl-delete
 bindkey "^[g" widget::glab::dir # Alt-g
 bindkey "^g" ghq-cd
 bindkey "^o" worktree-cd # Ctrl+O
+
+### Claude Code ###
+bindkey "^[r" widget::claude::resume   # Alt-r : claude -r で resume
+bindkey "^[a" widget::claude::sessions # Alt-a : セッション一覧ポップアップ

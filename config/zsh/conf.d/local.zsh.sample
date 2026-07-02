@@ -1,0 +1,5 @@
+export JIRA_API_TOKEN=""
+export JIRA_BASE_URL=""
+export JIRA_USER_EMAIL=""
+export ESA_ACCESS_TOKEN=""
+export GITLAB_TOKEN=""

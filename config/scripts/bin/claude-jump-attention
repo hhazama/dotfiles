@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# bell フラグの立った最初の window へジャンプする。
+# 訪問するとフラグが消えるので、prefix+A を連打すれば要対応 window を順に巡回できる。
+target=$(tmux list-windows -a -F '#{window_bell_flag} #{session_name}:#{window_index}' 2>/dev/null \
+  | awk '$1=="1"{print $2; exit}')
+if [ -n "$target" ]; then
+  tmux switch-client -t "${target%%:*}" 2>/dev/null || true
+  tmux select-window -t "$target"
+else
+  tmux display-message "要対応のセッションはありません"
+fi

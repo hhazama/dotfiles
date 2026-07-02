@@ -6,30 +6,30 @@
   vars_files:
     - ./vars/default.yml
   roles:
-    - role: ./roles/sudoers
+    - role: sudoers
       tags:
         - sudoers
-    - role: ./roles/apt
+    - role: apt
       tags:
         - apt
-    - role: ./roles/homebrew
+    - role: homebrew
       tags:
         - homebrew
-    - role: ./roles/ssh
+    - role: ssh
       tags:
         - ssh
-    - role: ./roles/links
+    - role: links
       tags:
         - links
-    - role: ./roles/docker
+    - role: docker
       tags:
         - docker
-    - role: ./roles/zsh
+    - role: zsh
       tags:
         - zsh
-    - role: ./roles/mise
+    - role: mise
       tags:
         - mise
-    - role: ./roles/win32yank
+    - role: win32yank
       tags:
         - win32yank

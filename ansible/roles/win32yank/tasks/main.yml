@@ -24,4 +24,4 @@
     src: "{{ xdg_state_home }}/win32yank/win32yank.exe"
     dest: "/usr/local/bin/win32yank"
     mode: "0755"
-    force: no 
+    force: no

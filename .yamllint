@@ -1,0 +1,14 @@
+# ansible 既存資産向けに緩めた設定(make lint で使用)
+extends: default
+
+rules:
+  line-length: disable
+  truthy:
+    allowed-values: ["true", "false", "yes", "no"]
+  comments:
+    min-spaces-from-content: 1
+  document-start: disable
+
+ignore: |
+  config/
+  .git/

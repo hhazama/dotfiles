@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# tmux の bell フラグが立った window 数を status-right 用に出力する。
+# status-interval(1秒)ごとに呼ばれるため claude は呼ばず、tmux 参照のみで軽量に保つ。
+# bell は「完了 or 通知でまだ未確認」を表す(claude-tmux-notify.sh が鳴らす)。
+n=$(tmux list-windows -a -F '#{window_bell_flag}' 2>/dev/null | grep -c '^1$')
+[ "${n:-0}" -gt 0 ] && printf '⏳%s ' "$n"
+exit 0

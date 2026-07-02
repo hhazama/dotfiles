@@ -68,14 +68,10 @@ export ZENO_FZF_TMUX_OPTIONS="-p 90%"
 export ZENO_HOME="$XDG_CONFIG_HOME/zeno"
 export ZENO_ENABLE_SOCK=1
 export ZENO_GIT_CAT="bat --color=always"
-export ZENO_GIT_TREE="exa --tree"
+export ZENO_GIT_TREE="eza --tree"
 
 ### Forgit ###
-export FORGIT_INSTALL_DIR="$PWD"
 export FORGIT_NO_ALIASES=1
-
-### ripgrep ###
-export RIPGREP_CONFIG_PATH="$XDG_CONFIG_HOME/ripgrep/config"
 
 ### navi ###
 export NAVI_CONFIG="$XDG_CONFIG_HOME/navi/config.yaml"
@@ -94,9 +90,6 @@ export PNPM_HOME="$XDG_DATA_HOME/pnpm"
 
 ### Python ###
 export PYTHONSTARTUP="$XDG_CONFIG_HOME/python/startup.py"
-
-### pipenv ###
-export PIPENV_VENV_IN_PROJECT=true
 
 ### pylint ###
 export PYLINTHOME="$XDG_CACHE_HOME/pylint"

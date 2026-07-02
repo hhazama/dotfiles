@@ -32,9 +32,17 @@ zinit wait'1' lucid light-mode for \
     @'hlissner/zsh-autopair'
 
 ### zsh plugins ###
+# completions は compinit より前に fpath 登録する必要があるため blockf で先に読む
 zinit wait lucid blockf light-mode for \
 	atload'async_init' @'mafredri/zsh-async' \
-	@'zsh-users/zsh-completions' \
+	@'zsh-users/zsh-completions'
+
+### fzf-tab ###
+# compinit 後・widget を wrap する autosuggestions/fast-syntax-highlighting より前に読む
+zinit wait lucid light-mode for \
+	@'Aloxaf/fzf-tab'
+
+zinit wait lucid light-mode for \
 	@'zsh-users/zsh-autosuggestions' \
 	@'zdharma-continuum/fast-syntax-highlighting'
 
@@ -61,7 +69,8 @@ __zeno_atload() {
     bindkey ' ' zeno-auto-snippet
     bindkey '^M' zeno-auto-snippet-and-accept-line
     bindkey '^P' zeno-completion
-    bindkey "^R" zeno-history-selection # C-r
+    # atuin 在時は atuin が ^R を握るため zeno には割り当てない
+    (( ${+commands[atuin]} )) || bindkey "^R" zeno-history-selection # C-r
 }
 # NOTE denoがないとインストールできない
 if (( ${+commands[deno]} )); then
@@ -79,8 +88,8 @@ zinit wait lucid light-mode as'program' for \
 autoload -Uz compinit
 autoload -Uz cdr
 autoload -Uz _zinit
+# zpcompinit は zinit 提供の compinit ラッパ。dump 先は ZINIT[ZCOMPDUMP_PATH](XDG_STATE)
 zpcompinit
-compinit
 
 if type compdef &>/dev/null; then
   _pnpm_completion () {
@@ -100,3 +109,11 @@ if type compdef &>/dev/null; then
 fi
 
 eval "$(gh completion -s zsh)"
+
+### zoxide ###
+# frecency ベースの cd。z/zi を追加(対話選択の j/jj とは用途を分ける)
+(( ${+commands[zoxide]} )) && eval "$(zoxide init zsh)"
+
+### atuin ###
+# ^R は atuin に委譲(zeno 側の ^R は atuin 在時のみ外す)。矢印は history-substring-search を残すため up-arrow は無効化
+(( ${+commands[atuin]} )) && eval "$(atuin init zsh --disable-up-arrow)"

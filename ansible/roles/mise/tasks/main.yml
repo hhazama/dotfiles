@@ -1,10 +1,12 @@
 ---
 - name: mise | Install mise
+  become_user: "{{ ansible_exec_user }}"
   shell: curl https://mise.run | sh
   args:
     creates: "{{ ansible_exec_user_home }}/.local/bin/mise"
 
 - name: mise | Install tools
+  become_user: "{{ ansible_exec_user }}"
   shell: "mise install"
   environment:
     PATH: "{{ ansible_exec_user_home }}/.local/bin:{{ ansible_env.PATH }}"
@@ -12,6 +14,38 @@
 - name: mise | npm install
   become_user: "{{ ansible_exec_user }}"
   shell: npm install --global \
-    @openai/codex \
-    @anthropic-ai/claude-code
-  
+    @google/gemini-cli \
+    @playwright/cli \
+    gitlab-ci-local
+
+# Claude Code は npm 版が旧式。ネイティブインストーラ(Node不要・自動更新)を使う
+- name: claude-code | Install via native installer
+  become_user: "{{ ansible_exec_user }}"
+  shell: curl -fsSL https://claude.ai/install.sh | bash
+  args:
+    creates: "{{ ansible_exec_user_home }}/.local/bin/claude"
+  environment:
+    PATH: "{{ ansible_exec_user_home }}/.local/bin:{{ ansible_env.PATH }}"
+
+# codex も npm 版でなく公式ネイティブインストーラを使う(Linux対応、brew は mac cask 専用)
+- name: codex | Install via native installer
+  become_user: "{{ ansible_exec_user }}"
+  shell: curl -fsSL https://chatgpt.com/codex/install.sh | sh
+  args:
+    creates: "{{ ansible_exec_user_home }}/.local/bin/codex"
+  environment:
+    PATH: "{{ ansible_exec_user_home }}/.local/bin:{{ ansible_env.PATH }}"
+
+# codegraph(colbymchenry/codegraph): バイナリ導入 → Claude Code へ MCP 登録
+- name: codegraph | Install binary
+  become_user: "{{ ansible_exec_user }}"
+  shell: curl -fsSL https://raw.githubusercontent.com/colbymchenry/codegraph/main/install.sh | sh
+  args:
+    creates: "{{ ansible_exec_user_home }}/.local/bin/codegraph"
+
+- name: codegraph | Register MCP into Claude Code
+  become_user: "{{ ansible_exec_user }}"
+  shell: codegraph install -y -t claude-code
+  changed_when: false
+  environment:
+    PATH: "{{ ansible_exec_user_home }}/.local/bin:{{ ansible_env.PATH }}"
