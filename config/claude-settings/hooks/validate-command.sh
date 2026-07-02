@@ -39,6 +39,12 @@ if echo "$COMMAND" | grep -qE '(cat|head|tail|less|more|bat)\s+.*\.env(\s|$|\.)|
   fi
 fi
 
+# コミットメッセージへの Co-Authored-By 付与を検知（CLAUDE.md のルールを機械的に強制）
+if echo "$COMMAND" | grep -qE '\bgit\s+commit\b' && echo "$COMMAND" | grep -qi 'co-authored-by'; then
+  echo '{"decision":"block","reason":"コミットメッセージに Co-Authored-By は付けないルールです。トレーラーを除いて commit してください"}'
+  exit 0
+fi
+
 # Git force操作の検知（フラグがどの位置にあってもブロック）
 if echo "$COMMAND" | grep -qE '^git\s+push\b.*(\s-f\b|\s--force\b|\s--force-with-lease\b)'; then
   echo '{"decision":"block","reason":"git push --force は禁止されています"}'
