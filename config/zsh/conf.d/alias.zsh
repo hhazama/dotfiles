@@ -22,6 +22,11 @@ alias wget='wget --hsts-file="$XDG_STATE_HOME/wget-hsts"'
 alias python="python3"
 alias pip="pip3"
 
+### Claude Code ###
+alias cl='claude'
+alias clc='claude --continue'
+alias clr='claude -r'
+
 alias mt="cd /data/git/webconnect/material_registration"
 alias taco="cd /data/git/webconnect/taco"
 alias dot="cd /data/repos/hhazama/dotfiles"
