@@ -1,3 +1,6 @@
+# monokai-pro に近い組み込みテーマ(nvim / tmux / fzf とトーン統一)
+--theme="Monokai Extended"
+
 --map-syntax=".clang-format:YAML"
 --map-syntax="vimrc:VimL"
 --map-syntax="**/git/conf.d/*.conf*:Git Config"

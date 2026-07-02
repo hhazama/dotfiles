@@ -51,7 +51,8 @@ export BREW_HOME="/home/linuxbrew/.linuxbrew"
 export GLAB_REPO_BASE="/data/repos"
 
 ### FZF ###
-export FZF_DEFAULT_OPTS='--cycle --reverse --border --ansi --bind="ctrl-d:print-query,ctrl-p:replace-query"'
+# 配色は monokai-pro トーン(nvim / tmux と統一)。bg:-1 で端末背景を活かす
+export FZF_DEFAULT_OPTS='--cycle --reverse --border --ansi --bind="ctrl-d:print-query,ctrl-p:replace-query" --color=bg:-1,bg+:#403e41,fg:#fcfcfa,fg+:#fcfcfa,hl:#ff6188,hl+:#ff6188,border:#5b595c,prompt:#78dce8,pointer:#ffd866,marker:#a9dc76,spinner:#ab9df2,header:#939293,info:#939293'
 export FZF_DEFAULT_COMMAND='fd --hidden --color=always'
 # export FZF_TMUX=1
 export FZF_TMUX_OPTS="-p 80%"
