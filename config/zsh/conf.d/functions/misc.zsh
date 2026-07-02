@@ -48,6 +48,13 @@ e() {
 }
 
 
+### ssh ###
+# ssh先のterminfoにtmux-256colorが無いことが多いため、pty-req送出時のTERMだけ広く互換性のある値に上書きする
+ssh() {
+	TERM=xterm-256color command ssh "$@"
+}
+
+
 ### shrink path ###
 colorlist() {
 	for i in {0..255}; do
