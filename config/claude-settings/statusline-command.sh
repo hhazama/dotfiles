@@ -21,9 +21,11 @@ model=$(echo "$input" | jq -r '.model.display_name // empty')
 # Context window usage
 used_pct=$(echo "$input" | jq -r '.context_window.used_percentage // empty')
 
-# Rate limits
+# Rate limits (usage % and reset time as unix epoch seconds)
 five_h=$(echo "$input" | jq -r '.rate_limits.five_hour.used_percentage // empty')
 seven_d=$(echo "$input" | jq -r '.rate_limits.seven_day.used_percentage // empty')
+five_h_reset=$(echo "$input" | jq -r '.rate_limits.five_hour.resets_at // empty')
+seven_d_reset=$(echo "$input" | jq -r '.rate_limits.seven_day.resets_at // empty')
 
 # Generate a progress bar: bar <percentage> <width>
 # Uses block characters for a smooth visual bar
@@ -38,18 +40,28 @@ bar() {
   echo "$result"
 }
 
-# Color a value based on percentage thresholds
+# Format a unix-epoch reset time (empty if unavailable)
+fmt_reset() {
+  local epoch=$1
+  local fmt=$2
+  [ -n "$epoch" ] && [ "$epoch" != "null" ] && date -d "@$epoch" +"$fmt" 2>/dev/null
+}
+
+# Color a value based on percentage thresholds. $4: optional reset-time suffix
 color_bar() {
   local pct=$1
   local label=$2
   local width=${3:-10}
+  local reset=$4
   local b=$(bar "$pct" "$width")
+  local suffix=""
+  [ -n "$reset" ] && suffix=" $reset"
   if [ "$pct" -ge 80 ]; then
-    printf '\033[31m%s %s %d%%\033[0m' "$label" "$b" "$pct"
+    printf '\033[31m%s %s %d%%%s\033[0m' "$label" "$b" "$pct" "$suffix"
   elif [ "$pct" -ge 50 ]; then
-    printf '\033[33m%s %s %d%%\033[0m' "$label" "$b" "$pct"
+    printf '\033[33m%s %s %d%%%s\033[0m' "$label" "$b" "$pct" "$suffix"
   else
-    printf '\033[32m%s %s %d%%\033[0m' "$label" "$b" "$pct"
+    printf '\033[32m%s %s %d%%%s\033[0m' "$label" "$b" "$pct" "$suffix"
   fi
 }
 
@@ -73,11 +85,11 @@ fi
 # rate limits with bars
 if [ -n "$five_h" ]; then
   fh_int=$(printf '%.0f' "$five_h")
-  parts+=("$(color_bar "$fh_int" "5h" 8)")
+  parts+=("$(color_bar "$fh_int" "5h" 8 "$(fmt_reset "$five_h_reset" '%H:%M')")")
 fi
 if [ -n "$seven_d" ]; then
   sd_int=$(printf '%.0f' "$seven_d")
-  parts+=("$(color_bar "$sd_int" "7d" 8)")
+  parts+=("$(color_bar "$sd_int" "7d" 8 "$(fmt_reset "$seven_d_reset" '%m/%d %H:%M')")")
 fi
 
 # Join with separator
