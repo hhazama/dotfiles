@@ -30,6 +30,7 @@ alias clr='claude -r'
 alias mt="cd /data/git/webconnect/material_registration"
 alias taco="cd /data/git/webconnect/taco"
 alias dot="cd /data/repos/hhazama/dotfiles"
+alias misc="cd $HOME/ghq/gitlab.fdev/hazama/misc"
 alias tiga="tig --all"
 
 if [ -n "$TMUX" ] && [ -n "$FZF_TMUX" ]; then
