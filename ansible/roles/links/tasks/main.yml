@@ -24,7 +24,6 @@
     path: "{{ item }}"
   with_items:
     - "{{ xdg_config_home }}/claude"
-    - "{{ xdg_config_home }}/claude/skills"
 
 - name: links | create symlink
   become_user: "{{ ansible_exec_user }}"
@@ -38,35 +37,33 @@
       dest: "{{ ansible_exec_user_home }}/.tmux.conf"
     - src: "{{ xdg_config_home }}/curl/.curlrc"
       dest: "{{ ansible_exec_user_home }}/.curlrc"
-    - src: "{{ xdg_config_home }}/claude-settings/CLAUDE.md"
+    - src: "{{ ansible_exec_user_home }}/ghq/gitlab.fdev/hazama/misc/claude/CLAUDE.md"
       dest: "{{ xdg_config_home }}/claude/CLAUDE.md"
+      force: yes
     - src: "{{ xdg_config_home }}/claude-settings/commands"
       dest: "{{ xdg_config_home }}/claude/commands"
     - src: "{{ xdg_config_home }}/claude-settings/statusline-command.sh"
       dest: "{{ xdg_config_home }}/claude/statusline-command.sh"
-    - src: "{{ xdg_config_home }}/claude-settings/RTK.md"
+    - src: "{{ ansible_exec_user_home }}/ghq/gitlab.fdev/hazama/misc/claude/RTK.md"
       dest: "{{ xdg_config_home }}/claude/RTK.md"
+      force: yes
+    - src: "{{ ansible_exec_user_home }}/ghq/gitlab.fdev/hazama/misc/claude/skills"
+      dest: "{{ xdg_config_home }}/claude/skills"
+      force: yes
+    - src: "{{ ansible_exec_user_home }}/ghq/gitlab.fdev/hazama/misc/claude/agents"
+      dest: "{{ xdg_config_home }}/claude/agents"
+      force: yes
     - src: "{{ xdg_config_home }}/claude"
       dest: "{{ ansible_exec_user_home }}/.claude"
       force: yes
 
 # settings.json は Claude Code 自身が書き換える(symlink は実ファイルで置換される)ため
-# symlink ではなく初回のみ copy。以降の同期は scripts/claude-settings-diff.sh で行う
+# symlink ではなく初回のみ copy。以降の同期は misc の claude/scripts/claude-settings-diff.sh で行う
 - name: links | copy claude settings.json (initial only)
   become_user: "{{ ansible_exec_user }}"
   copy:
-    src: "{{ config_directory_path }}/claude-settings/settings.json"
+    src: "{{ ansible_exec_user_home }}/ghq/gitlab.fdev/hazama/misc/claude/settings.json"
     dest: "{{ xdg_config_home }}/claude/settings.json"
     remote_src: yes
     force: no
     mode: "0644"
-
-- name: links | link claude skills
-  become_user: "{{ ansible_exec_user }}"
-  file:
-    state: link
-    src: "{{ xdg_config_home }}/claude-settings/skills/{{ item | basename }}"
-    dest: "{{ xdg_config_home }}/claude/skills/{{ item | basename }}"
-    force: yes
-  with_lines:
-    - "find {{ config_directory_path }}/claude-settings/skills -mindepth 1 -maxdepth 1 -type d"
