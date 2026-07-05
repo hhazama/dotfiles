@@ -21,6 +21,21 @@ model=$(echo "$input" | jq -r '.model.display_name // empty')
 # Context window usage
 used_pct=$(echo "$input" | jq -r '.context_window.used_percentage // empty')
 
+# 閾値超過で compact-prep 警告 marker を書く(warned cooldown 中は書かない)
+# marker は userpromptsubmit-compact-prep-reminder.sh が読んで /compact-prep 提案を注入する
+COMPACT_WARN_THRESHOLD=60
+if [ -n "$used_pct" ]; then
+  _ctx_pct_int=$(printf '%.0f' "$used_pct" 2>/dev/null || echo 0)
+  if [ "$_ctx_pct_int" -ge "$COMPACT_WARN_THRESHOLD" ] 2>/dev/null; then
+    _sid=$(echo "$input" | jq -r '.session_id // empty')
+    if [ -n "$_sid" ] && [ ! -f "${TMPDIR:-/tmp}/claude-compact-warned/$_sid" ]; then
+      _warn_dir="${TMPDIR:-/tmp}/claude-compact-warn"
+      mkdir -p "$_warn_dir" 2>/dev/null || true
+      printf '%s\n' "$_ctx_pct_int" > "$_warn_dir/$_sid" 2>/dev/null || true
+    fi
+  fi
+fi
+
 # Rate limits (usage % and reset time as unix epoch seconds)
 five_h=$(echo "$input" | jq -r '.rate_limits.five_hour.used_percentage // empty')
 seven_d=$(echo "$input" | jq -r '.rate_limits.seven_day.used_percentage // empty')
