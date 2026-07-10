@@ -26,6 +26,9 @@ alias pip="pip3"
 alias cl='claude'
 alias clc='claude --continue'
 alias clr='claude -r'
+alias clo='claude --model opus --effort xhigh'
+alias cls='claude --model sonnet --effort high'
+alias clf='claude --model fable --effort high'
 
 alias mt="cd /data/git/webconnect/material_registration"
 alias taco="cd /data/git/webconnect/taco"
