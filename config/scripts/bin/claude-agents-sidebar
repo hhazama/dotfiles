@@ -1,38 +1,63 @@
 #!/usr/bin/env bash
-# サイドバーペイン内で動く描画ループ(読み取り専用)。
-# state file を毎tick再生成候補にかけ(flockで単一更新)、細幅向けに整形して表示する。
-#   引数: [幅] (既定 CLAUDE_SIDEBAR_WIDTH / 32)
+# tmux エージェント状態サイドバー。fzf で状態一覧を常時表示し、j/k/Enter またはクリックで
+# 選択セッションの pane へジャンプする。データは共有 state file(flock で単一更新)から読む。
+#   引数なし : サイドバー本体(fzf)をペイン内で起動
+#   --feed   : fzf に流す行を出力(state を古ければ更新してから整形)
+#   --jump T C S : target/cwd/sid を受けてジャンプ(fzf の enter/click から呼ばれる)
 set -uo pipefail
 _lib="$(command -v claude-agents-lib.sh)" || { echo "claude-agents-lib.sh not found" >&2; exit 1; }
 . "$_lib"
 
-WIDTH="${1:-${CLAUDE_SIDEBAR_WIDTH:-32}}"
+WIDTH="${CLAUDE_SIDEBAR_WIDTH:-32}"
 STATE_DIR="${XDG_RUNTIME_DIR:-/tmp}/claude-agents"
 STATE="$STATE_DIR/state"
 LOCK="$STATE_DIR/poll.lock"
 POLL="${CLAUDE_SIDEBAR_POLL_INTERVAL:-2}"
-RENDER="${CLAUDE_SIDEBAR_RENDER_INTERVAL:-1}"
 mkdir -p "$STATE_DIR"
 
-render() {
-  printf '\033[H'                              # カーソルを原点へ(全消去せず行単位でクリアし点滅を抑える)
-  printf '\033[1m agents\033[0m\033[K\n'
-  if ! command -v claude >/dev/null 2>&1 || ! command -v jq >/dev/null 2>&1; then
-    printf ' claude/jq がありません\033[K\n\033[J'; return
-  fi
-  if [ ! -e "$STATE" ]; then printf ' loading…\033[K\n\033[J'; return; fi
-  if [ ! -s "$STATE" ]; then printf ' セッションなし\033[K\n\033[J'; return; fi
-  local icon label _cwd _branch age _rest
-  while IFS=$'\t' read -r icon label _cwd _branch age _rest; do
-    label=$(agents_trunc "$label" $((WIDTH > 9 ? WIDTH - 7 : 2)))
-    printf '%s %s %s\033[K\n' "$icon" "$label" "$age"
+# fzf 行 = "表示\ttarget\tcwd\tsid\tpid"。表示は色付き icon+label+age、残りは隠しフィールド。
+feed() {
+  agents_refresh_state "$STATE" "$LOCK" "$POLL"
+  [ -s "$STATE" ] || { printf '(セッションなし)\t\t\t\t\n'; return; }
+  local icon label cwdbase branch age loc target cwd sid pid col disp
+  while IFS=$'\t' read -r icon label cwdbase branch age loc target cwd sid pid; do
+    case "$icon" in
+      ⏳) col=$'\033[33m';;   # 黄: 要対応
+      ▶)  col=$'\033[36m';;   # シアン: 作業中
+      *)  col=$'\033[2m';;    # 淡: 待機/その他
+    esac
+    disp=$(printf '%s%s %s\033[0m %s' "$col" "$icon" "$(agents_trunc "$label" $((WIDTH>12 ? WIDTH-9 : 3)))" "$age")
+    printf '%s\t%s\t%s\t%s\t%s\n' "$disp" "$target" "$cwd" "$sid" "$pid"
   done < "$STATE"
-  printf '\033[J'                              # 残余行をクリア
 }
 
-trap 'exit 0' INT TERM
-while :; do
-  agents_refresh_state "$STATE" "$LOCK" "$POLL"
-  render
-  sleep "$RENDER"
-done
+# 選択行の pane へジャンプ。pane 未紐付けなら新 window で resume。
+jump() {
+  local target="$1" cwd="$2" sid="$3"
+  [ -n "${TMUX:-}" ] || return 0
+  if [ -n "$target" ]; then
+    tmux switch-client -t "${target%%:*}" 2>/dev/null || true
+    tmux select-window -t "${target%.*}" 2>/dev/null || true
+    tmux select-pane -t "$target" 2>/dev/null || true
+  elif [ -n "$sid" ]; then
+    tmux new-window -c "$cwd" "claude -r '$sid'"
+  fi
+}
+
+case "${1:-}" in
+  --feed) feed; exit 0 ;;
+  --jump) jump "${2:-}" "${3:-}" "${4:-}"; exit 0 ;;
+esac
+
+SELF="$(command -v -- "$0" 2>/dev/null)"; [ -n "$SELF" ] || SELF="$0"
+# enter/click は execute-silent(fzf を終了させない)でジャンプ。フォーカスが移っても
+# サイドバーは動き続ける。esc 等は無効化し、うっかり閉じない(閉じるのは C-t b)。
+exec fzf --ansi --reverse --with-nth=1 --delimiter='\t' \
+  --no-input --info=hidden --no-scrollbar --highlight-line --pointer='>' \
+  --border=none --no-separator --header=' agents' --track \
+  --bind 'esc:ignore' --bind 'ctrl-c:ignore' --bind 'ctrl-g:ignore' --bind 'ctrl-q:ignore' \
+  --bind "start:reload($SELF --feed)" \
+  --bind "load:reload(sleep $POLL; $SELF --feed)" \
+  --bind "enter:execute-silent($SELF --jump {2} {3} {4})" \
+  --bind "double-click:execute-silent($SELF --jump {2} {3} {4})" \
+  < /dev/null

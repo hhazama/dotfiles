@@ -5,8 +5,8 @@
 
 ## 決定事項
 
-- 表示形態: 常設サイドペイン(A案)＋トグル。ペインは tmux の性質上ウィンドウ単位で、`prefix+b` で当該ウィンドウに出し入れする。全ウィンドウ自動表示は既定 OFF。
-- 中身の作り方: 単一ポーラ＋state file＋読み取り専用サイドバー(案1)。操作(jump/kill 等)は既存の `prefix+a` popup / `prefix+A` jump に委ね、サイドバーは「見る」専用。
+- 表示形態: 常設サイドペイン(A案)＋トグル。ペインは tmux の性質上ウィンドウ単位で、`prefix+b` で出し入れ。`after-new-window`/`after-new-session` フックで全ウィンドウに自動表示(herdr のデフォルト表示相当)。
+- 中身の作り方: flock スロットルの共有 state file(案1)を、サイドバーペイン内の fzf が読んで常時表示。fzf 上で j/k/Enter またはクリックで選択セッションの pane へジャンプ(インタラクティブ)。kill 等の重操作は既存 `prefix+a` popup に委ねる。
 - データ源: `claude agents --json`(既存 `claude-sessions` と同じ)。状態マップ waiting/needs_input→⏳、busy/running→▶、idle→✓。
 
 ## コンポーネント
@@ -15,8 +15,8 @@
 |---|---|---|
 | `claude-agents-lib.sh` | 新規(共有lib) | `claude agents --json` の正規化・状態マップ・age/branch・pane 突合を集約。状態マップの唯一の定義箇所 |
 | `agents_refresh_state`(lib内) | 新規 | レンダラ内から flock 付きで呼ばれ、state が maxage(2秒)より古い時だけ再生成。別プロセスの常駐ポーラは持たず孤児化を避ける |
-| `claude-agents-sidebar` | 新規 | サイドバーペイン内の描画ループ。毎tick `agents_refresh_state` を呼びつつ state file を読み細幅整形(読み取り専用) |
-| `claude-sidebar-toggle` | 新規 | `prefix+b`。当該windowにサイドバーがあれば kill、無ければ左に固定幅で分割しレンダラ起動＋ポーラ確保＋フォーカス復帰 |
+| `claude-agents-sidebar` | 新規 | ペイン内で fzf を起動し状態一覧を常時表示。`--feed`(state 更新+整形)を2秒毎に自動 reload、Enter/クリックで `--jump`(選択 pane へ移動)。fzf 非アクティブ window では再描画されない点は実使用上問題なし |
+| `claude-sidebar-toggle` | 新規 | `prefix+b`。当該windowにサイドバーがあれば kill、無ければ左に固定幅で分割し fzf 起動＋フォーカス復帰。`ensure` モードは「無ければ開くだけ」でフック自動表示に使う |
 | `claude-sessions` | 変更 | emit_rows を lib 利用へ置換(状態マップ二重管理の解消)。外部挙動(--list/--rows)は不変 |
 | `config/tmux/tmux.conf` | 変更 | `bind b run-shell claude-sidebar-toggle` |
 
