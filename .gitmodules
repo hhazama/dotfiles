@@ -1,0 +1,3 @@
+[submodule "windows/autohotkey"]
+	path = windows/autohotkey
+	url = https://github.com/hhazama/keyboard-window-switcher.git
