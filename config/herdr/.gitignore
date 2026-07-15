@@ -1,0 +1,5 @@
+# config.toml だけ管理し、herdr が実行時に作る socket / state 等は追跡しない
+# (~/.config/herdr はこのディレクトリへの symlink なので runtime ファイルがここに落ちる)
+*
+!.gitignore
+!config.toml

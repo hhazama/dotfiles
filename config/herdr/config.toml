@@ -1,0 +1,23 @@
+# herdr 設定。tmux(config/tmux/tmux.conf)の癖に寄せた構成。
+# 全キーの一覧: https://herdr.dev/docs/config-reference/
+# 反映: herdr server reload-config
+
+[terminal]
+# tmux の default-shell /bin/zsh に合わせる
+default_shell = "/bin/zsh"
+
+[keys]
+# tmux の prefix (C-t) に合わせる。herdr 既定は ctrl+b
+prefix = "ctrl+t"
+
+# tmux: bind s split-window -v(上下分割)に合わせる。herdr 既定 prefix+minus から変更
+split_horizontal = "prefix+s"
+# 既定で settings が prefix+s のため衝突回避で移動(split_vertical=prefix+v は tmux の bind v と一致)
+settings = "prefix+shift+s"
+
+# theme はダーク系11種から選択可(既定 catppuccin mocha)。monokai 相当は下の custom で近似できる
+# [theme]
+# name = "tokyo-night"   # 他: dracula / kanagawa / vesper / gruvbox / nord / one-dark / rose-pine
+# [theme.custom]         # 現行 tmux(monokai-pro トーン)に寄せる例
+# accent = "#78dce8"
+# green  = "#a9dc76"
