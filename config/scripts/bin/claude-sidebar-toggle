@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# prefix+b から呼ばれるトグル。現ウィンドウにサイドバーがあれば消し、無ければ左に細ペインを開く。
+# サイドバーペインは pane オプション @agent_sidebar=1 で識別する。
+set -uo pipefail
+[ -n "${TMUX:-}" ] || exit 0
+WIDTH="${CLAUDE_SIDEBAR_WIDTH:-32}"
+
+existing=$(tmux list-panes -F '#{@agent_sidebar}	#{pane_id}' 2>/dev/null | awk -F'\t' '$1=="1"{print $2; exit}')
+if [ -n "$existing" ]; then
+  tmux kill-pane -t "$existing"
+  exit 0
+fi
+
+# 左に固定幅で分割 → 目印付与 → フォーカスを元ペインに戻す。
+cur=$(tmux display-message -p '#{pane_id}')
+new=$(tmux split-window -h -b -l "$WIDTH" -P -F '#{pane_id}' "exec claude-agents-sidebar $WIDTH")
+tmux set-option -p -t "$new" @agent_sidebar 1
+tmux select-pane -t "$cur"

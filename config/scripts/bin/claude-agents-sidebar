@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# サイドバーペイン内で動く描画ループ(読み取り専用)。
+# state file を毎tick再生成候補にかけ(flockで単一更新)、細幅向けに整形して表示する。
+#   引数: [幅] (既定 CLAUDE_SIDEBAR_WIDTH / 32)
+set -uo pipefail
+_lib="$(command -v claude-agents-lib.sh)" || { echo "claude-agents-lib.sh not found" >&2; exit 1; }
+. "$_lib"
+
+WIDTH="${1:-${CLAUDE_SIDEBAR_WIDTH:-32}}"
+STATE_DIR="${XDG_RUNTIME_DIR:-/tmp}/claude-agents"
+STATE="$STATE_DIR/state"
+LOCK="$STATE_DIR/poll.lock"
+POLL="${CLAUDE_SIDEBAR_POLL_INTERVAL:-2}"
+RENDER="${CLAUDE_SIDEBAR_RENDER_INTERVAL:-1}"
+mkdir -p "$STATE_DIR"
+
+render() {
+  printf '\033[H'                              # カーソルを原点へ(全消去せず行単位でクリアし点滅を抑える)
+  printf '\033[1m agents\033[0m\033[K\n'
+  if ! command -v claude >/dev/null 2>&1 || ! command -v jq >/dev/null 2>&1; then
+    printf ' claude/jq がありません\033[K\n\033[J'; return
+  fi
+  if [ ! -e "$STATE" ]; then printf ' loading…\033[K\n\033[J'; return; fi
+  if [ ! -s "$STATE" ]; then printf ' セッションなし\033[K\n\033[J'; return; fi
+  local icon label _cwd _branch age _rest
+  while IFS=$'\t' read -r icon label _cwd _branch age _rest; do
+    label=$(agents_trunc "$label" $((WIDTH > 9 ? WIDTH - 7 : 2)))
+    printf '%s %s %s\033[K\n' "$icon" "$label" "$age"
+  done < "$STATE"
+  printf '\033[J'                              # 残余行をクリア
+}
+
+trap 'exit 0' INT TERM
+while :; do
+  agents_refresh_state "$STATE" "$LOCK" "$POLL"
+  render
+  sleep "$RENDER"
+done
