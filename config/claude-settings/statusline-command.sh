@@ -15,8 +15,9 @@ else
   short_cwd=$(pwd)
 fi
 
-# Model
+# Model / reasoning effort (effort はモデルが対応する場合のみ存在)
 model=$(echo "$input" | jq -r '.model.display_name // empty')
+effort=$(echo "$input" | jq -r '.effort.level // empty')
 
 # Context window usage
 used_pct=$(echo "$input" | jq -r '.context_window.used_percentage // empty')
@@ -42,6 +43,10 @@ seven_d=$(echo "$input" | jq -r '.rate_limits.seven_day.used_percentage // empty
 five_h_reset=$(echo "$input" | jq -r '.rate_limits.five_hour.resets_at // empty')
 seven_d_reset=$(echo "$input" | jq -r '.rate_limits.seven_day.resets_at // empty')
 
+# Session cost / elapsed time
+cost=$(echo "$input" | jq -r '.cost.total_cost_usd // empty')
+dur_ms=$(echo "$input" | jq -r '.cost.total_duration_ms // empty')
+
 # Generate a progress bar: bar <percentage> <width>
 # Uses block characters for a smooth visual bar
 bar() {
@@ -53,6 +58,22 @@ bar() {
   for ((i=0; i<filled; i++)); do result+="█"; done
   for ((i=0; i<empty; i++)); do result+="░"; done
   echo "$result"
+}
+
+# Format a duration in milliseconds as e.g. 1h23m / 45m12s / 8s
+fmt_duration() {
+  local ms=$1
+  local total_s=$(( ms / 1000 ))
+  local h=$(( total_s / 3600 ))
+  local m=$(( (total_s % 3600) / 60 ))
+  local s=$(( total_s % 60 ))
+  if [ "$h" -gt 0 ]; then
+    printf '%dh%dm' "$h" "$m"
+  elif [ "$m" -gt 0 ]; then
+    printf '%dm%ds' "$m" "$s"
+  else
+    printf '%ds' "$s"
+  fi
 }
 
 # Format a unix-epoch reset time (empty if unavailable)
@@ -86,9 +107,13 @@ parts=()
 # user@host:cwd
 parts+=("$(printf '\033[32m%s@%s\033[0m:\033[34m%s\033[0m' "$user" "$host" "$short_cwd")")
 
-# model
+# model (+ reasoning effort を dim で後置)
 if [ -n "$model" ]; then
-  parts+=("$(printf '\033[36m%s\033[0m' "$model")")
+  if [ -n "$effort" ]; then
+    parts+=("$(printf '\033[36m%s\033[0m \033[2m%s\033[0m' "$model" "$effort")")
+  else
+    parts+=("$(printf '\033[36m%s\033[0m' "$model")")
+  fi
 fi
 
 # context usage with bar
@@ -105,6 +130,13 @@ fi
 if [ -n "$seven_d" ]; then
   sd_int=$(printf '%.0f' "$seven_d")
   parts+=("$(color_bar "$sd_int" "7d" 8 "$(fmt_reset "$seven_d_reset" '%m/%d %H:%M')")")
+fi
+
+# session cost + elapsed time
+if [ -n "$cost" ] || [ -n "$dur_ms" ]; then
+  cost_fmt=$(printf '$%.2f' "${cost:-0}")
+  dur_fmt=$(fmt_duration "${dur_ms:-0}")
+  parts+=("$(printf '\033[35m%s %s\033[0m' "$cost_fmt" "$dur_fmt")")
 fi
 
 # Join with separator
