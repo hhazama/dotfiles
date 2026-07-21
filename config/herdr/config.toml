@@ -1,3 +1,4 @@
+onboarding = false
 # herdr 設定。tmux(config/tmux/tmux.conf)の癖に寄せた構成。
 # 全キーの一覧: https://herdr.dev/docs/config-reference/
 # 反映: herdr server reload-config
@@ -21,3 +22,18 @@ settings = "prefix+shift+s"
 # [theme.custom]         # 現行 tmux(monokai-pro トーン)に寄せる例
 # accent = "#78dce8"
 # green  = "#a9dc76"
+
+[ui]
+show_agent_labels_on_pane_borders = true
+# ctrl+t c での new tab 作成時に名前入力ポップアップを出さない
+prompt_new_tab_name = false
+
+[ui.toast]
+delivery = "herdr"
+
+[ui.sound]
+enabled = false
+
+[theme]
+name = "catppuccin"
+auto_switch = false
