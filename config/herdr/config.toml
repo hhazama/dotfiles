@@ -16,13 +16,6 @@ split_horizontal = "prefix+s"
 # 既定で settings が prefix+s のため衝突回避で移動(split_vertical=prefix+v は tmux の bind v と一致)
 settings = "prefix+shift+s"
 
-# theme はダーク系11種から選択可(既定 catppuccin mocha)。monokai 相当は下の custom で近似できる
-# [theme]
-# name = "tokyo-night"   # 他: dracula / kanagawa / vesper / gruvbox / nord / one-dark / rose-pine
-# [theme.custom]         # 現行 tmux(monokai-pro トーン)に寄せる例
-# accent = "#78dce8"
-# green  = "#a9dc76"
-
 [ui]
 show_agent_labels_on_pane_borders = true
 # ctrl+t c での new tab 作成時に名前入力ポップアップを出さない
@@ -34,6 +27,25 @@ delivery = "herdr"
 [ui.sound]
 enabled = false
 
+# ダーク系ベースに Monokai Pro を custom で上書き(starship / tig / fzf / lazygit とトーン統一)
 [theme]
 name = "catppuccin"
 auto_switch = false
+
+[theme.custom]
+text        = "#fcfcfa"
+subtext0    = "#939293"
+panel_bg    = "#2d2a2e"
+surface_dim = "#221f22"
+surface0    = "#403e41"
+surface1    = "#5b595c"
+overlay0    = "#727072"
+overlay1    = "#939293"
+accent      = "#78dce8"
+blue        = "#78dce8"
+teal        = "#78dce8"
+green       = "#a9dc76"
+yellow      = "#ffd866"
+red         = "#ff6188"
+mauve       = "#ab9df2"
+peach       = "#fc9867"

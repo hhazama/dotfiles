@@ -26,39 +26,40 @@ add_newline = false
 
 palette = "default"
 
+# Monokai Pro パレット(tig / herdr / fzf / lazygit とトーン統一)
 [palettes.default]
-default = "#464347"
+default = "#403e41"
 
 # os
-os_bg = "33"
-os_fg = "white"
+os_bg = "#78dce8"
+os_fg = "#221f22"
 # user
-user_bg = "8"
-user_fg = "white"
+user_bg = "#2d2a2e"
+user_fg = "#fcfcfa"
 # directory
-directory_bg = "123"
-directory_fg = "black"
+directory_bg = "#78dce8"
+directory_fg = "#221f22"
 # git
-git_bg = "208"
-git_fg = "black"
+git_bg = "#fc9867"
+git_fg = "#221f22"
 # character
-character_bg = "white"
-character_success_fg = "green"
-character_failure_fg = "red"
+character_bg = "#fcfcfa"
+character_success_fg = "#a9dc76"
+character_failure_fg = "#ff6188"
 # time
-time_bg = "white"
-time_fg = "8"
+time_bg = "#2d2a2e"
+time_fg = "#939293"
 # duration
-duration_fg = "#464347"
+duration_fg = "#939293"
 # nodejs
-nodejs_bg = "green"
-nodejs_fg = "black"
+nodejs_bg = "#a9dc76"
+nodejs_fg = "#221f22"
 # python
-python_bg = "226"
-python_fg = "black"
-# rust
-rust_bg = "red"
-rust_fg = "black"
+python_bg = "#ffd866"
+python_fg = "#221f22"
+# rust (git の orange と隣接し得るため purple)
+rust_bg = "#ab9df2"
+rust_fg = "#221f22"
 
 [os]
 disabled = false

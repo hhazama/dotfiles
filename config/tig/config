@@ -1,0 +1,55 @@
+# tig 設定(Monokai Pro 配色。starship / herdr / fzf / lazygit とトーン統一)
+
+# ---- 挙動 ----
+set split-view-width = 80%
+set line-graphics = utf-8
+set main-view = date:relative author:abbreviated id:yes commit-title:graph=v2,refs=yes
+set diff-highlight = true
+set mouse = true
+set tab-size = 4
+
+# ---- キーバインド ----
+bind main v !?git revert %(commit)
+bind diff v !?git revert %(commit)
+bind main V !?git revert %(prompt) %(commit)
+bind diff V !?git revert %(prompt) %(commit)
+
+# ---- 配色 (Monokai Pro) ----
+# このビルドの tig は truecolor 非対応のため 256色で近似する
+# 231=#fcfcfa相当(fg) 237=#403e41 236=#2d2a2e 246=#939293
+# 116=#78dce8(cyan) 150=#a9dc76(green) 221=#ffd866(yellow)
+# 204=#ff6188(red) 141=#ab9df2(purple) 209=#fc9867(orange)
+
+# 基本
+color default           231 default
+color cursor            231 237 bold
+color title-focus       236 116 bold
+color title-blur        246 236
+color search-result     236 221
+
+# main view
+color date              116 default
+color author            150 default
+color id                141 default
+color graph-commit      209 default
+color main-head         221 default bold
+color main-remote       141 default
+color main-tracked      141 default bold
+color main-tag          204 default bold
+color main-local-tag    204 default
+color main-ref          116 default
+
+# diff view
+color diff-header       141 default
+color diff-index        116 default
+color diff-chunk        116 default
+color diff-add          150 default
+color diff-del          204 default
+color diff-stat         116 default
+color "commit "         221 default
+color "Refs: "          246 default
+
+# status view
+color stat-staged       150 default
+color stat-unstaged     221 default
+color stat-untracked    204 default

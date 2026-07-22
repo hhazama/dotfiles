@@ -6,6 +6,28 @@ git:
 
 gui:
   showIcons: true
+  # Monokai Pro (starship / tig / herdr / fzf とトーン統一)
+  theme:
+    activeBorderColor:
+      - "#78dce8"
+      - bold
+    inactiveBorderColor:
+      - "#5b595c"
+    searchingActiveBorderColor:
+      - "#ffd866"
+      - bold
+    optionsTextColor:
+      - "#78dce8"
+    selectedLineBgColor:
+      - "#403e41"
+    cherryPickedCommitBgColor:
+      - "#403e41"
+    cherryPickedCommitFgColor:
+      - "#78dce8"
+    unstagedChangesColor:
+      - "#ff6188"
+    defaultFgColor:
+      - "#fcfcfa"
 
 os:
   editPreset: "nvim"
