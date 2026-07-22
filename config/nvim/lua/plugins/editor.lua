@@ -115,6 +115,20 @@ return {
     },
   },
 
+  -- カーソル下のシンボルと同じ箇所をハイライト(LSP がないバッファでも treesitter/regex で動く)
+  {
+    'RRethy/vim-illuminate',
+    event = { 'BufReadPost', 'BufNewFile' },
+    config = function()
+      require('illuminate').configure {
+        -- セマンティックな一致(LSP)を優先し、treesitter / 素のテキストにフォールバック
+        providers = { 'lsp', 'treesitter', 'regex' },
+        delay = 120,
+        filetypes_denylist = { 'neo-tree', 'TelescopePrompt', 'alpha' },
+      }
+    end,
+  },
+
   -- VSCode 風のプロジェクト全体 検索/置換パネル
   {
     'MagicDuck/grug-far.nvim',
