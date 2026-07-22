@@ -24,6 +24,43 @@ return {
     end,
   },
 
+  -- マージコンフリクトを VSCode 風に解決する
+  -- バッファローカルマッピング(コンフリクトを含むファイルでのみ有効):
+  --   co: 自分側 / ct: 相手側 / cb: 両方 / c0: 両方破棄 / ]x / [x: 次/前のコンフリクトへ
+  {
+    'akinsho/git-conflict.nvim',
+    version = '*',
+    event = { 'BufReadPre', 'BufNewFile' },
+    keys = {
+      { '<leader>gx', '<cmd>GitConflictListQf<cr>', desc = '[G]it conflict list (quickfix)' },
+    },
+    config = function()
+      require('git-conflict').setup {
+        default_mappings = true,
+        default_commands = true,
+        -- プラグイン側の disable_diagnostics は nvim 0.12 で削除された
+        -- vim.diagnostic.disable() を使うため無効にし、下の autocmd で同等処理を行う
+        disable_diagnostics = false,
+        list_opener = 'copen',
+      }
+
+      -- コンフリクト検出時: マーカーが LSP には構文エラーに見えるため診断をミュートし、解決キーを通知する
+      vim.api.nvim_create_autocmd('User', {
+        pattern = 'GitConflictDetected',
+        callback = function()
+          vim.diagnostic.enable(false, { bufnr = vim.api.nvim_get_current_buf() })
+          vim.notify('コンフリクト検出: co=自分 / ct=相手 / cb=両方 / ]x=次へ', vim.log.levels.INFO)
+        end,
+      })
+      vim.api.nvim_create_autocmd('User', {
+        pattern = 'GitConflictResolved',
+        callback = function()
+          vim.diagnostic.enable(true, { bufnr = vim.api.nvim_get_current_buf() })
+        end,
+      })
+    end,
+  },
+
   -- GitLab link generation
   {
     'ruifm/gitlinker.nvim',
