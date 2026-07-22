@@ -11,6 +11,9 @@ config/navi/navi.log
 # レガシーのルート .zshrc(実体は config/zsh/.zshrc。ルート直下のみ無視)
 /.zshrc
 
+# hunk が書き込むローカル状態
+config/hunk/state.json
+
 # 生成物(補完ダンプ)
 *.zcompdump
 *.zcompdump.*

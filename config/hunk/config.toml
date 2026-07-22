@@ -1,0 +1,3 @@
+# hunk (terminal diff viewer) の設定
+# https://github.com/modem-dev/hunk
+watch = true
