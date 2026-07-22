@@ -145,7 +145,17 @@ return {
     'nvim-lualine/lualine.nvim',
     dependencies = { 'nvim-tree/nvim-web-devicons' },
     config = function()
-      require('lualine').setup {}
+      require('lualine').setup {
+        sections = {
+          -- 相対パス + 「何番目の hunk / 全 hunk 数」(± 2/5)
+          lualine_c = {
+            { 'filename', path = 1 },
+            function()
+              return require('hunkinfo').status(0)
+            end,
+          },
+        },
+      }
     end,
   },
 

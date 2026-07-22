@@ -20,6 +20,24 @@ return {
           topdelete = { text = '‾' },
           changedelete = { text = '~' },
         },
+        on_attach = function(bufnr)
+          local gs = require 'gitsigns'
+          -- hunk 間ナビゲーション(diff モード時は vim 標準の ]c / [c を使う)
+          vim.keymap.set('n', ']c', function()
+            if vim.wo.diff then
+              vim.cmd.normal { ']c', bang = true }
+            else
+              gs.nav_hunk 'next'
+            end
+          end, { buffer = bufnr, desc = 'Next git hunk' })
+          vim.keymap.set('n', '[c', function()
+            if vim.wo.diff then
+              vim.cmd.normal { '[c', bang = true }
+            else
+              gs.nav_hunk 'prev'
+            end
+          end, { buffer = bufnr, desc = 'Prev git hunk' })
+        end,
       }
     end,
   },
