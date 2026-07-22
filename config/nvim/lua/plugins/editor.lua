@@ -115,6 +115,35 @@ return {
     },
   },
 
+  -- VSCode 風のプロジェクト全体 検索/置換パネル
+  {
+    'MagicDuck/grug-far.nvim',
+    opts = {},
+    keys = {
+      {
+        '<leader>sp',
+        function()
+          require('grug-far').open()
+        end,
+        desc = '[S]earch / re[P]lace (project)',
+      },
+      {
+        '<leader>sW',
+        function()
+          require('grug-far').open { prefills = { search = vim.fn.expand '<cword>' } }
+        end,
+        desc = '[S]earch / replace [W]ord under cursor',
+      },
+      {
+        '<leader>sf',
+        function()
+          require('grug-far').open { prefills = { paths = vim.fn.expand '%' } }
+        end,
+        desc = '[S]earch / replace in current [F]ile',
+      },
+    },
+  },
+
   -- ターミナル内の `git commit` / `git rebase -i` / `nvim file` を
   -- ネストした nvim ではなくこのインスタンスのバッファとして開く
   {
