@@ -42,6 +42,38 @@ return {
     end,
   },
 
+  -- <leader>gh で hunk 操作モードに入り、j/k/s/u/r/p を単打で連続実行する
+  {
+    'nvimtools/hydra.nvim',
+    dependencies = { 'lewis6991/gitsigns.nvim' },
+    keys = { { '<leader>gh', desc = '[G]it [H]unk mode (hydra)' } },
+    config = function()
+      local Hydra = require 'hydra'
+      local gs = require 'gitsigns'
+      Hydra {
+        name = 'Git hunk',
+        mode = 'n',
+        body = '<leader>gh',
+        -- pink: モード中も hydra 外のキーが通常どおり効く
+        config = { color = 'pink', invoke_on_body = true },
+        hint = [[
+ _j_: 次の hunk   _k_: 前の hunk   _p_: preview
+ _s_: stage      _u_: stage 取消  _r_: reset
+ _<Esc>_: 終了
+]],
+        heads = {
+          { 'j', function() gs.nav_hunk 'next' end },
+          { 'k', function() gs.nav_hunk 'prev' end },
+          { 's', gs.stage_hunk },
+          { 'u', gs.undo_stage_hunk },
+          { 'r', gs.reset_hunk },
+          { 'p', gs.preview_hunk },
+          { '<Esc>', nil, { exit = true } },
+        },
+      }
+    end,
+  },
+
   -- マージコンフリクトを VSCode 風に解決する
   -- バッファローカルマッピング(コンフリクトを含むファイルでのみ有効):
   --   co: 自分側 / ct: 相手側 / cb: 両方 / c0: 両方破棄 / ]x / [x: 次/前のコンフリクトへ

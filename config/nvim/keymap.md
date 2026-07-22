@@ -95,6 +95,7 @@
 | キー | 動作 |
 |---|---|
 | `]c` / `[c` | 次 / 前の変更 hunk へ(ステータスラインに `± i/n` で現在位置を常時表示) |
+| `Space gh` | hunk 操作モード(hydra)。モード中は `j`/`k`: 移動、`s`: stage、`u`: stage 取消、`r`: reset、`p`: preview、`Esc`: 終了 |
 | `Space gy` | 現在行の GitLab パーマリンクをコピー |
 | `Space gd` | dev ブランチとの差分を diffview で開く(MR 相当) |
 | `Space gr` | 任意 ref との差分(プロンプトで入力) |
