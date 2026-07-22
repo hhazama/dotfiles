@@ -18,8 +18,10 @@ settings = "prefix+shift+s"
 
 [ui]
 show_agent_labels_on_pane_borders = true
-# ctrl+t c での new tab 作成時に名前入力ポップアップを出さない
+# ctrl+t c での new tab 作成時に名前入力ポップアップを出さない(renameは prefix+shift+t)
 prompt_new_tab_name = false
+# タブが1つのときはタブバーを隠してすっきりさせる
+hide_tab_bar_when_single_tab = true
 
 [ui.toast]
 delivery = "herdr"
