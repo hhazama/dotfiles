@@ -1,0 +1,17 @@
+{
+    "profiles_defaults": {
+        "font": { "face": "HackGen Console NF", "size": 11 },
+        "opacity": 92,
+        "padding": "8, 8, 8, 8",
+        "scrollbarState": "hidden",
+        "cursorShape": "filledBox",
+        "intenseTextStyle": "bright"
+    },
+    "top_level": {
+        "useAcrylicInTabRow": true,
+        "theme": "dark"
+    },
+    "color_scheme_by_profile": {
+        "Ubuntu": "Monokai Pro"
+    }
+}
