@@ -115,6 +115,33 @@ return {
     },
   },
 
+  -- ターミナル内の `git commit` / `git rebase -i` / `nvim file` を
+  -- ネストした nvim ではなくこのインスタンスのバッファとして開く
+  {
+    'willothy/flatten.nvim',
+    lazy = false,
+    priority = 1001, -- ゲスト側の検出のため他プラグインより先に初期化する必要がある
+    config = function()
+      vim.env.GIT_EDITOR = 'nvim'
+      require('flatten').setup {
+        hooks = {
+          -- 編集完了(:wq)で git が再開するので、ターミナルウィンドウへフォーカスを戻す
+          block_end = function()
+            vim.schedule(function()
+              for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+                if vim.bo[vim.api.nvim_win_get_buf(win)].buftype == 'terminal' then
+                  vim.api.nvim_set_current_win(win)
+                  vim.cmd 'startinsert'
+                  return
+                end
+              end
+            end)
+          end,
+        },
+      }
+    end,
+  },
+
   -- Hop
   {
     'phaazon/hop.nvim',
