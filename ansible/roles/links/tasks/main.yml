@@ -15,6 +15,7 @@
     force: yes
   with_lines:
     - "find {{ config_directory_path }} -mindepth 1 -maxdepth 1 -type d"
+  when: (item | basename) not in config_link_excludes
 
 - name: links | make claude config directories
   become_user: "{{ ansible_exec_user }}"

@@ -4,6 +4,10 @@ path_to_root: ".."
 # realpath で正規化する。しないとリンク先が ansible/../config/x となり、手動作成分と形式が混在する
 repo_root_path: "{{ (playbook_dir ~ '/' ~ path_to_root) | realpath }}"
 config_directory_path: "{{ repo_root_path }}/config"
+# ~/.config へのリンクを作らないディレクトリ。
+# windows-terminal は scripts/apply-windows-terminal.py が repo 内を直接読むため WSL 側に不要
+config_link_excludes:
+  - windows-terminal
 
 # --extra-varsオプションを使い、実行時に変数を定義する
 ansible_exec_user: ""
