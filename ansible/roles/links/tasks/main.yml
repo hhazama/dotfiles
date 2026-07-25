@@ -45,9 +45,6 @@
       dest: "{{ xdg_config_home }}/claude/commands"
     - src: "{{ xdg_config_home }}/claude-settings/statusline-command.sh"
       dest: "{{ xdg_config_home }}/claude/statusline-command.sh"
-    - src: "{{ ansible_exec_user_home }}/ghq/gitlab.fdev/hazama/misc/claude/RTK.md"
-      dest: "{{ xdg_config_home }}/claude/RTK.md"
-      force: yes
     - src: "{{ ansible_exec_user_home }}/ghq/gitlab.fdev/hazama/misc/claude/skills"
       dest: "{{ xdg_config_home }}/claude/skills"
       force: yes
