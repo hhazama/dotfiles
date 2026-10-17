@@ -10,6 +10,7 @@
     name:
       - autoconf
       - bc
+      - bubblewrap  # Claude Code の sandbox で必要
       - build-essential
       - bzip2
       - curl
@@ -27,6 +28,7 @@
       - libxmlsec1-dev
       - nkf
       - openssh-server
+      - socat  # Claude Code の sandbox で必要
       - sshpass
       - tk-dev
       - uuid-dev
