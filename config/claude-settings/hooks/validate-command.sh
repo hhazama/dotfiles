@@ -45,14 +45,6 @@ if echo "$COMMAND" | grep -qE '\bgit\s+commit\b' && echo "$COMMAND" | grep -qi '
   exit 0
 fi
 
-# GitLab への書き込み(MR コメント・description 更新・MR 作成)は確認を挟む。
-# permissions.ask の前方一致では glab api / post-gitlab.ts の読み取りと書き込みを区別できないため hook で判定する
-if echo "$COMMAND" | grep -qE '\bglab\s+api\b.*(\s(-X|--method)\s*(POST|PUT|PATCH|DELETE)\b|\s(-f|-F|--field|--raw-field)\s)' \
-  || echo "$COMMAND" | grep -qE '\bpost-gitlab\.ts\b.*\s(-c|-f|-d|--desc-file|--create-mr)\b'; then
-  jq -n '{hookSpecificOutput:{hookEventName:"PreToolUse",permissionDecision:"ask",permissionDecisionReason:"GitLab への書き込み(MR コメント・description 更新・MR 作成)は確認が必要です"}}'
-  exit 0
-fi
-
 # Git force操作の検知（フラグがどの位置にあってもブロック）
 if echo "$COMMAND" | grep -qE '^git\s+push\b.*(\s-f\b|\s--force\b|\s--force-with-lease\b)'; then
   echo '{"decision":"block","reason":"git push --force は禁止されています"}'
