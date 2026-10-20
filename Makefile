@@ -4,18 +4,20 @@ SHELL_FILES := install.sh scripts/setup.sh \
 	config/scripts/bin/fzf-preview-file \
 	config/scripts/bin/fzf-preview-git \
 	config/claude-settings/hooks/validate-command.sh \
-	config/claude-settings/statusline-command.sh
+	config/claude-settings/statusline-command.sh \
+	scripts/hooks/pre-push
 
 .PHONY: setup-hooks lint secrets check help
 
 help:
-	@echo "setup-hooks  pre-commit + commit-msg フックを有効化(Conventional Commits 強制)"
+	@echo "setup-hooks  pre-commit + commit-msg + pre-push フックを有効化(秘密検知・Conventional Commits 強制)"
 	@echo "lint         shellcheck/shfmt/yamllint/ansible-lint を実行(助言的)"
 	@echo "secrets      gitleaks で秘密情報を走査"
 	@echo "check        ansible を --check ドライランし links のドリフトを検知"
 
 setup-hooks:
 	pre-commit install --install-hooks
+	ln -sf "$(CURDIR)/scripts/hooks/pre-push" "$$(git rev-parse --git-common-dir)/hooks/pre-push"
 
 # 助言的。1つの linter が落ちても続行する(- prefix)
 lint:
