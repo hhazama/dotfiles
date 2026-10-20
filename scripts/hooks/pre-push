@@ -1,0 +1,36 @@
+#!/bin/bash
+# pre-push hook: push するコミットの差分・メッセージの秘密情報と、author/committer のメールを検査する
+# pre-commit の gitleaks は staged しか見ないため、--no-verify や hook 導入前のコミットはここで止める。
+# pre-commit 経由の pre-push は最初の ref しか検査しないので、ネイティブ hook として全 ref を見る
+set -euo pipefail
+
+remote="$1"
+z40=0000000000000000000000000000000000000000
+status=0
+
+if ! command -v gitleaks >/dev/null; then
+  echo "pre-push: gitleaks が見つからないため push を中止します" >&2
+  exit 1
+fi
+
+while read -r _local_ref local_sha _remote_ref remote_sha; do
+  [ "$local_sha" = "$z40" ] && continue
+  if [ "$remote_sha" != "$z40" ] && git cat-file -e "${remote_sha}^{commit}" 2>/dev/null; then
+    range=("${remote_sha}..${local_sha}")
+  else
+    range=("$local_sha" --not "--remotes=$remote")
+  fi
+  [ -z "$(git rev-list "${range[@]}")" ] && continue
+
+  gitleaks git --no-banner --redact -c .gitleaks.toml --log-opts="${range[*]}" . </dev/null || status=1
+  git log --format=%B "${range[@]}" | gitleaks stdin --no-banner --redact -c .gitleaks.toml || status=1
+
+  # 会社メールの混入を防ぐため、GitHub の noreply アドレス以外を拒否する
+  emails=$(git log --format='%ae%n%ce' "${range[@]}" | grep -v '@users\.noreply\.github\.com$' | sort -u || true)
+  if [ -n "$emails" ]; then
+    echo "pre-push: noreply 以外の author/committer メールを含むコミットがあります: ${emails//$'\n'/, }" >&2
+    status=1
+  fi
+done
+
+exit "$status"

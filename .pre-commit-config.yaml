@@ -1,5 +1,6 @@
 # 有効化: make setup-hooks
 # コミットをブロックするのは「秘密検知」と「コミットメッセージ形式」の2つのみ。
+# push 時の検査は scripts/hooks/pre-push(make setup-hooks でリンクする)。
 # shellcheck/shfmt/yamllint/ansible-lint は make lint で手動実行(助言的)。
 default_install_hook_types: [pre-commit, commit-msg]
 repos:
@@ -7,6 +8,7 @@ repos:
     rev: v8.30.0
     hooks:
       - id: gitleaks
+        stages: [pre-commit]
 
   - repo: https://github.com/compilerla/conventional-pre-commit
     rev: v4.4.0
