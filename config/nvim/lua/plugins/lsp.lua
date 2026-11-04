@@ -212,10 +212,10 @@ return {
         --
         -- You can use a sub-list to tell conform to run *until* a formatter
         -- is found.
-        javascript = { { 'biome', 'prettierd', 'prettier' } },
-        typescript = { { 'biome', 'prettierd', 'prettier' } },
-        typescriptreact = { { 'biome', 'prettierd', 'prettier' } },
-        javascriptreact = { { 'biome', 'prettierd', 'prettier' } },
+        javascript = { { 'oxfmt', 'biome', 'prettierd', 'prettier' } },
+        typescript = { { 'oxfmt', 'biome', 'prettierd', 'prettier' } },
+        typescriptreact = { { 'oxfmt', 'biome', 'prettierd', 'prettier' } },
+        javascriptreact = { { 'oxfmt', 'biome', 'prettierd', 'prettier' } },
       },
     },
   },
