@@ -41,6 +41,39 @@ alias tiga="tig --all"
 alias dp-start="docker compose -f $HOME/ghq/gitlab.fdev/hazama/dev-pulse/compose.yaml up -d"
 alias dp-stop="docker compose -f $HOME/ghq/gitlab.fdev/hazama/dev-pulse/compose.yaml stop"
 
+### opsdesk(Slack 運用デスク、http://127.0.0.1:7420) ###
+# ログは $XDG_STATE_HOME/opsdesk/serve.log。画面の URL(key 付き)は起動時にログへ出る
+ods-start() {
+	local log="$XDG_STATE_HOME/opsdesk/serve.log"
+	if pgrep -f '^opsdesk serve' >/dev/null; then
+		echo "opsdesk serve は起動済み(PID: $(pgrep -f '^opsdesk serve'))"
+		return 1
+	fi
+	mkdir -p "${log:h}"
+	# setsid で独立したプロセスグループにし、ods-stop で子の claude -p ごと止められるようにする
+	setsid nohup opsdesk serve >>"$log" 2>&1 </dev/null &!
+	sleep 2
+	if ! pgrep -f '^opsdesk serve' >/dev/null; then
+		echo "起動に失敗しました。ログ: $log"
+		tail -n 20 "$log"
+		return 1
+	fi
+	grep '画面の URL' "$log" | tail -n 1
+}
+ods-stop() {
+	local pid pgid
+	pid="$(pgrep -f '^opsdesk serve')" || { echo "opsdesk serve は動いていません"; return 1; }
+	pgid="$(ps -o pgid= -p "$pid" | tr -d ' ')"
+	# serve は SIGTERM で即終了し子を片付けないため、グループ全体に送る。
+	# グループの長でないとき(シェルと同じグループ)はシェルを巻き込まないよう本体だけ止める
+	if [[ "$pgid" == "$pid" ]]; then
+		kill -TERM -- "-$pgid"
+	else
+		kill -TERM "$pid"
+	fi
+	echo "opsdesk serve を停止しました(PID: $pid)"
+}
+
 if [ -n "$TMUX" ] && [ -n "$FZF_TMUX" ]; then
 	__fzf_tmux() {
 		if [ -n "$@" ]; then
