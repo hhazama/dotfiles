@@ -36,6 +36,11 @@ alias dot="cd /data/repos/hhazama/dotfiles"
 alias misc="cd $HOME/ghq/gitlab.fdev/hazama/misc"
 alias tiga="tig --all"
 
+### dev-pulse(開発生産性ダッシュボード、http://127.0.0.1:8787) ###
+# stop はコンテナを残して止める。restart: unless-stopped なので、止めている間は Docker を再起動しても上がらない
+alias dp-start="docker compose -f $HOME/ghq/gitlab.fdev/hazama/dev-pulse/compose.yaml up -d"
+alias dp-stop="docker compose -f $HOME/ghq/gitlab.fdev/hazama/dev-pulse/compose.yaml stop"
+
 if [ -n "$TMUX" ] && [ -n "$FZF_TMUX" ]; then
 	__fzf_tmux() {
 		if [ -n "$@" ]; then
