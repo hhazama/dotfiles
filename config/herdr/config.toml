@@ -16,18 +16,39 @@ split_horizontal = "prefix+s"
 # 既定で settings が prefix+s のため衝突回避で移動(split_vertical=prefix+v は tmux の bind v と一致)
 settings = "prefix+shift+s"
 
+# 並列で回すエージェント間を素早く移動する
+next_agent = "prefix+a"
+previous_agent = "prefix+shift+a"
+focus_agent = "prefix+alt+1..9"
+
+# prefix+g は既定で goto に使われているため alt を付ける
+[[keys.command]]
+key = "prefix+alt+g"
+type = "popup"
+command = "lazygit"
+width = "90%"
+height = "90%"
+
 [ui]
 show_agent_labels_on_pane_borders = true
 # ctrl+t c での new tab 作成時に名前入力ポップアップを出さない(renameは prefix+shift+t)
 prompt_new_tab_name = false
 # タブが1つのときはタブバーを隠してすっきりさせる
 hide_tab_bar_when_single_tab = true
+# 許可待ち・完了のエージェントをサイドバーの上に寄せ、待ちに早く気づく
+agent_panel_sort = "priority"
+status_indicators = "symbols"
+
+# Claude Code が端末タイトルに書く作業内容を出し、どのペインが何をしているか分かるようにする
+[ui.sidebar.agents.rows_by_agent]
+claude = [["state_icon", "workspace", "tab"], ["terminal_title_stripped"]]
 
 [ui.toast]
 delivery = "herdr"
 
 [ui.sound]
-enabled = false
+# 裏のワークスペースで許可待ちになったことに気づくため鳴らす
+enabled = true
 
 # ダーク系ベースに Monokai Pro を custom で上書き(starship / tig / fzf / lazygit とトーン統一)
 [theme]
@@ -51,3 +72,7 @@ yellow      = "#ffd866"
 red         = "#ff6188"
 mauve       = "#ab9df2"
 peach       = "#fc9867"
+
+[experimental]
+# server を再起動してもペインの画面履歴を残す
+pane_history = true
