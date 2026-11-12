@@ -1,3 +1,12 @@
+-- tsrs は TS 7 相当のため、プロジェクトが入れているときだけ typescript-tools の代わりに使う
+local function find_tsrs_root(bufnr)
+  for dir in vim.fs.parents(vim.api.nvim_buf_get_name(bufnr)) do
+    if vim.fn.executable(dir .. '/node_modules/.bin/tsrs') == 1 then
+      return dir
+    end
+  end
+end
+
 return {
   -- LSP Configuration & Plugins
   {
@@ -157,18 +166,26 @@ return {
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
-      require('mason-lspconfig').setup {
-        handlers = {
-          function(server_name)
-            local server = servers[server_name] or {}
-            -- This handles overriding only values explicitly passed
-            -- by the server configuration above. Useful when disabling
-            -- certain features of an LSP (for example, turning off formatting for tsserver)
-            server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-            require('lspconfig')[server_name].setup(server)
-          end,
-        },
-      }
+      vim.lsp.config('*', { capabilities = capabilities })
+      for name, server in pairs(servers) do
+        vim.lsp.config(name, server)
+      end
+      -- mason でインストールしたサーバーは mason-lspconfig が vim.lsp.enable する
+      require('mason-lspconfig').setup()
+
+      vim.lsp.config('tsrs', {
+        cmd = function(dispatchers, config)
+          return vim.lsp.rpc.start({ config.root_dir .. '/node_modules/.bin/tsrs', '--lsp', '--stdio' }, dispatchers)
+        end,
+        filetypes = { 'javascript', 'javascriptreact', 'typescript', 'typescriptreact' },
+        root_dir = function(bufnr, on_dir)
+          local root = find_tsrs_root(bufnr)
+          if root then
+            on_dir(root)
+          end
+        end,
+      })
+      vim.lsp.enable { 'oxlint', 'tsrs' }
     end,
   },
 
@@ -176,7 +193,13 @@ return {
   {
     'pmizio/typescript-tools.nvim',
     dependencies = { 'nvim-lua/plenary.nvim', 'neovim/nvim-lspconfig' },
-    opts = {},
+    opts = {
+      root_dir = function(bufnr, on_dir)
+        if not find_tsrs_root(bufnr) then
+          on_dir(require('typescript-tools.utils').get_root_dir(bufnr))
+        end
+      end,
+    },
   },
 
   -- Autoformat
@@ -210,12 +233,10 @@ return {
         -- Conform can also run multiple formatters sequentially
         -- python = { "isort", "black" },
         --
-        -- You can use a sub-list to tell conform to run *until* a formatter
-        -- is found.
-        javascript = { { 'oxfmt', 'biome', 'prettierd', 'prettier' } },
-        typescript = { { 'oxfmt', 'biome', 'prettierd', 'prettier' } },
-        typescriptreact = { { 'oxfmt', 'biome', 'prettierd', 'prettier' } },
-        javascriptreact = { { 'oxfmt', 'biome', 'prettierd', 'prettier' } },
+        javascript = { 'oxfmt', 'biome', 'prettierd', 'prettier', stop_after_first = true },
+        typescript = { 'oxfmt', 'biome', 'prettierd', 'prettier', stop_after_first = true },
+        typescriptreact = { 'oxfmt', 'biome', 'prettierd', 'prettier', stop_after_first = true },
+        javascriptreact = { 'oxfmt', 'biome', 'prettierd', 'prettier', stop_after_first = true },
       },
     },
   },
