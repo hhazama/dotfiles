@@ -66,6 +66,15 @@
           - yamllint
           - ansible-lint
 
+    # Claude Code の LSP プラグイン(typescript-lsp / pyright-lsp)が呼ぶ言語サーバーと、構文単位の検索・置換
+    - name: homebrew | Install tools for coding agents
+      homebrew:
+        state: present
+        name:
+          - ast-grep
+          - pyright
+          - typescript-language-server
+
     # gh-dash は Homebrew に formula/tap が無いため gh 拡張として導入する
     - name: gh-dash | Install via gh extension
       command: gh extension install dlvhdr/gh-dash
