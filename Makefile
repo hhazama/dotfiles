@@ -1,5 +1,4 @@
 SHELL_FILES := install.sh scripts/setup.sh \
-	config/scripts/bin/claude-notify.sh \
 	config/scripts/bin/fzf-preview-directory \
 	config/scripts/bin/fzf-preview-file \
 	config/scripts/bin/fzf-preview-git \
