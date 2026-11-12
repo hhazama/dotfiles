@@ -81,10 +81,10 @@ export NAVI_CONFIG="$XDG_CONFIG_HOME/navi/config.yaml"
 export NODE_REPL_HISTORY="$XDG_STATE_HOME/node_history"
 
 ### npm ###
-export NPM_CONFIG_DIR="$XDG_CONFIG_HOME/npm"
 export NPM_DATA_DIR="$XDG_DATA_HOME/npm"
 export NPM_CACHE_DIR="$XDG_CACHE_HOME/npm"
-export NPM_CONFIG_USERCONFIG="$NPM_CONFIG_DIR/npmrc"
+# NPM_CONFIG_ で始まる変数は npm が設定値として読むため、補助変数を作らずに直接書く
+export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"
 
 ### pnpm ###
 export PNPM_HOME="$XDG_DATA_HOME/pnpm"
