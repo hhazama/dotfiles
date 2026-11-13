@@ -43,17 +43,20 @@ alias dp-stop="docker compose -f $HOME/ghq/gitlab.fdev/hazama/dev-pulse/compose.
 
 ### opsdesk(Slack 運用デスク、http://127.0.0.1:7420) ###
 # ログは $XDG_STATE_HOME/opsdesk/serve.log。画面の URL(key 付き)は起動時にログへ出る
+# mise の shim を経由すると実体のフルパスで動くので、パスの有無どちらにも合わせる。
+# 末尾を固定し、コマンド文字列に「opsdesk serve」を含むだけのシェルには合わせない
+__ods_pattern='(^|/)opsdesk serve$'
 ods-start() {
 	local log="$XDG_STATE_HOME/opsdesk/serve.log"
-	if pgrep -f '^opsdesk serve' >/dev/null; then
-		echo "opsdesk serve は起動済み(PID: $(pgrep -f '^opsdesk serve'))"
+	if pgrep -f "$__ods_pattern" >/dev/null; then
+		echo "opsdesk serve は起動済み(PID: $(pgrep -f "$__ods_pattern"))"
 		return 1
 	fi
 	mkdir -p "${log:h}"
 	# setsid で独立したプロセスグループにし、ods-stop で子の claude -p ごと止められるようにする
 	setsid nohup opsdesk serve >>"$log" 2>&1 </dev/null &!
 	sleep 2
-	if ! pgrep -f '^opsdesk serve' >/dev/null; then
+	if ! pgrep -f "$__ods_pattern" >/dev/null; then
 		echo "起動に失敗しました。ログ: $log"
 		tail -n 20 "$log"
 		return 1
@@ -62,7 +65,7 @@ ods-start() {
 }
 ods-stop() {
 	local pid pgid
-	pid="$(pgrep -f '^opsdesk serve')" || { echo "opsdesk serve は動いていません"; return 1; }
+	pid="$(pgrep -f "$__ods_pattern")" ||{ echo "opsdesk serve は動いていません"; return 1; }
 	pgid="$(ps -o pgid= -p "$pid" | tr -d ' ')"
 	# serve は SIGTERM で即終了し子を片付けないため、グループ全体に送る。
 	# グループの長でないとき(シェルと同じグループ)はシェルを巻き込まないよう本体だけ止める
