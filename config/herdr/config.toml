@@ -35,8 +35,8 @@ show_agent_labels_on_pane_borders = true
 prompt_new_tab_name = false
 # タブが1つのときはタブバーを隠してすっきりさせる
 hide_tab_bar_when_single_tab = true
-# 許可待ち・完了のエージェントをサイドバーの上に寄せ、待ちに早く気づく
-agent_panel_sort = "priority"
+# 状態変化で並びが動くと目で追えないため、ワークスペース順で固定する
+agent_panel_sort = "spaces"
 status_indicators = "symbols"
 
 # Claude Code が端末タイトルに書く作業内容を出し、どのペインが何をしているか分かるようにする
