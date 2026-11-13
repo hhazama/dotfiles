@@ -46,19 +46,22 @@ if echo "$COMMAND" | grep -qE '\bgit\s+commit\b' && echo "$COMMAND" | grep -qi '
 fi
 
 # Git force操作の検知（フラグがどの位置にあってもブロック）
-if echo "$COMMAND" | grep -qE '^git\s+push\b.*(\s-f\b|\s--force\b|\s--force-with-lease\b)'; then
+# 行頭に限らず && ; | $( の後ろも見る。先頭の環境変数代入と git -C <dir> / -c k=v などのグローバルオプションも挟める
+GIT_PREFIX='(^|[;&|({`]|\$\()\s*(\S+=\S*\s+)*git(\s+-[cC]\s+\S+|\s+--\S+)*\s+'
+# -uf のようなまとめ書き、--force-with-lease=<ref>:<sha>、refspec 先頭の + も force になる
+if echo "$COMMAND" | grep -qE "${GIT_PREFIX}"'push\b.*(\s-[a-zA-Z]*f[a-zA-Z]*\b|\s--force(-with-lease|-if-includes)?\b|\s--mirror\b|\s\+\S)'; then
   echo '{"decision":"block","reason":"git push --force は禁止されています"}'
   exit 0
 fi
-if echo "$COMMAND" | grep -qE '^git\s+reset\b.*\s--hard\b'; then
+if echo "$COMMAND" | grep -qE "${GIT_PREFIX}"'reset\b.*\s--hard\b'; then
   echo '{"decision":"block","reason":"git reset --hard は禁止されています"}'
   exit 0
 fi
-if echo "$COMMAND" | grep -qE '^git\s+clean\b.*\s-[a-zA-Z]*f'; then
+if echo "$COMMAND" | grep -qE "${GIT_PREFIX}"'clean\b.*\s-[a-zA-Z]*f'; then
   echo '{"decision":"block","reason":"git clean -f は禁止されています"}'
   exit 0
 fi
-if echo "$COMMAND" | grep -qE '^git\s+branch\b.*\s-D\b'; then
+if echo "$COMMAND" | grep -qE "${GIT_PREFIX}"'branch\b.*\s-D\b'; then
   echo '{"decision":"block","reason":"git branch -D は禁止されています"}'
   exit 0
 fi
