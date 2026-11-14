@@ -39,7 +39,7 @@ height = "80%"
 
 # レビュー待ちの他人の MR を選び、別タブの Claude Code にレビューから approve までさせる
 [[keys.command]]
-key = "prefix+alt+r"
+key = "prefix+d"
 type = "popup"
 command = "~/ghq/gitlab.fdev/hazama/misc/claude/scripts/mr-review/pick.sh"
 width = "90%"
