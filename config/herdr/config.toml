@@ -37,6 +37,14 @@ command = "~/.config/herdr/mem-kill.sh"
 width = "90%"
 height = "80%"
 
+# レビュー待ちの他人の MR を選び、別タブの Claude Code にレビューから approve までさせる
+[[keys.command]]
+key = "prefix+alt+r"
+type = "popup"
+command = "~/ghq/gitlab.fdev/hazama/misc/claude/scripts/mr-review/pick.sh"
+width = "90%"
+height = "80%"
+
 [ui]
 show_agent_labels_on_pane_borders = true
 # ctrl+t c での new tab 作成時に名前入力ポップアップを出さない(renameは prefix+shift+t)
