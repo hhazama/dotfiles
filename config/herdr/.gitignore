@@ -5,3 +5,5 @@
 !config.toml
 !mem-status.sh
 !mem-kill.sh
+!agent_timeline.py
+!agent_timeline_test.py

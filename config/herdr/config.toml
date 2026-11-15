@@ -37,6 +37,14 @@ command = "~/.config/herdr/mem-kill.sh"
 width = "90%"
 height = "80%"
 
+# 並列で回している Claude Code のタスクツリーとタイムラインを一覧し、選んだエージェントへ移動する
+[[keys.command]]
+key = "prefix+t"
+type = "popup"
+command = "/usr/bin/python3 -I ~/.config/herdr/agent_timeline.py view"
+width = "95%"
+height = "90%"
+
 # レビュー待ちの他人の MR を選び、別タブの Claude Code にレビューから approve までさせる
 [[keys.command]]
 key = "prefix+d"
@@ -54,8 +62,11 @@ hide_tab_bar_when_single_tab = false
 # 状態変化で並びが動くと目で追えないため、ワークスペース順で固定する
 agent_panel_sort = "spaces"
 status_indicators = "symbols"
-# 並列エージェント・証跡撮影・nvim の同時利用で WSL が OOM しやすいため、使用量と最大プロセスを常に見えるようにする
 tab_bar_right = [
+  # 並列で回すセッションの進み具合を全体で掴むため、タスクとサブエージェントの集計を出す。
+  # サイドバー各行の $progress もここで更新する。エージェントの数だけ herdr を呼ぶので timeout を長めにとる
+  { type = "command", command = "/usr/bin/python3 -I ~/.config/herdr/agent_timeline.py report", interval_seconds = 5, timeout_seconds = 4 },
+  # 並列エージェント・証跡撮影・nvim の同時利用で WSL が OOM しやすいため、使用量と最大プロセスを常に見えるようにする
   { type = "command", command = "~/.config/herdr/mem-status.sh", interval_seconds = 5, timeout_seconds = 2 },
 ]
 
@@ -67,9 +78,10 @@ rows = [
   ["$c6"], ["$c7"], ["$c8"], ["$c9"], ["$c10"],
 ]
 
-# Claude Code が端末タイトルに書く作業内容を出し、どのペインが何をしているか分かるようにする
+# どのペインが何をしていて、どこまで進んだか分かるように、Claude Code が端末タイトルに書く作業内容と
+# タスクの進捗(agent_timeline.py が書く $progress)を出す
 [ui.sidebar.agents.rows_by_agent]
-claude = [["state_icon", "workspace", "tab"], ["terminal_title_stripped"]]
+claude = [["state_icon", "workspace", "tab"], ["terminal_title_stripped"], ["$progress"]]
 
 [ui.toast]
 delivery = "herdr"
