@@ -24,7 +24,7 @@ CACHE_DIR = os.path.join(os.environ.get("XDG_RUNTIME_DIR") or "/tmp", "herdr-age
 HERDR = os.environ.get("HERDR_BIN_PATH") or "herdr"
 SOURCE = "agent-timeline"
 # キャッシュの形を変えたら上げる。tmpfs のキャッシュは herdr を使っている間ずっと残るため
-CACHE_VERSION = 2
+CACHE_VERSION = 3
 WINDOW_SEC = 60 * 60
 KEEP_SEC = 3 * 60 * 60
 # Claude が落ちたときやチームメイトは meta.json に finished が付かないため、更新が止まったものは実行中とみなさない。
@@ -220,7 +220,7 @@ def refresh_subs(state, now):
     subs = state["subs"]
     for name in names:
         known = subs.get(name)
-        if known and known["state"] != "running":
+        if known and known["final"]:
             continue
         log = os.path.join(sub_dir, name[: -len(".meta.json")] + ".jsonl")
         try:
@@ -252,6 +252,8 @@ def refresh_subs(state, now):
             "end": None if sub_state == "running" else end,
             "task": task,
             "state": sub_state,
+            # 更新が止まっただけのものは、後で再開・完了することがあるので読み直す
+            "final": bool(meta.get("finished") or meta.get("stoppedByUser")),
         }
         if entry != known:
             subs[name] = entry
@@ -354,7 +356,8 @@ def report():
     except Exception:
         # 失敗するとタブ行のエントリも token も黙って消えるだけなので、壊れたことが見えるようにする
         os.makedirs(CACHE_DIR, exist_ok=True)
-        with open(os.path.join(CACHE_DIR, "error.log"), "a") as f:
+        # 5秒ごとに失敗し続けても tmpfs を食わないよう、最新の1件だけ残す
+        with open(os.path.join(CACHE_DIR, "error.log"), "w") as f:
             f.write(f"--- {datetime.now().isoformat()}\n{traceback.format_exc()}")
         print("TL ERR")
 

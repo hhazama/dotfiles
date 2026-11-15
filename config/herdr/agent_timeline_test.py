@@ -186,6 +186,14 @@ class SubagentTest(Base):
         self.assertEqual(subs["タスク前"]["end"] - subs["タスク前"]["start"], 48)
         self.assertEqual(tl.progress_token(tl.summarize(state, self.now)), "▱▱▱▱ 0/1 ⟳1 レビュー中")
 
+    def test_stale_subagent_can_come_back(self):
+        n = self.now - tl.STALE_SEC - 100
+        self.write([assistant(n, ("a1", "Agent", {"description": "遅い"}))])
+        self.subagent("x1", "a1", "遅い", n + 10)
+        self.assertEqual([s["state"] for s in self.load()["subs"].values()], ["stopped"])
+        self.subagent("x1", "a1", "遅い", self.now - 5, finished=True)
+        self.assertEqual([s["state"] for s in self.load()["subs"].values()], ["done"])
+
     def test_subagent_without_parent_tool_use(self):
         self.write([assistant(self.now - 100)])
         self.subagent("x1", None, "スキル経由", self.now - 10)
