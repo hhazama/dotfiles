@@ -65,9 +65,9 @@ status_indicators = "symbols"
 tab_bar_right = [
   # 並列で回すセッションの進み具合を全体で掴むため、タスクとサブエージェントの集計を出す。
   # サイドバー各行の $progress もここで更新する。エージェントの数だけ herdr を呼ぶので timeout を長めにとる
-  { type = "command", command = "/usr/bin/python3 -I ~/.config/herdr/agent_timeline.py report", interval_seconds = 5, timeout_seconds = 4 },
+  { type = "command", command = "/usr/bin/python3 -I ~/.config/herdr/agent_timeline.py report", interval_seconds = 10, timeout_seconds = 4 },
   # 並列エージェント・証跡撮影・nvim の同時利用で WSL が OOM しやすいため、使用量と最大プロセスを常に見えるようにする
-  { type = "command", command = "~/.config/herdr/mem-status.sh", interval_seconds = 5, timeout_seconds = 2 },
+  { type = "command", command = "~/.config/herdr/mem-status.sh", interval_seconds = 10, timeout_seconds = 2 },
 ]
 
 # spaces はあまり使わないので、workspace 行の下にメモリを食っているコンテナ上位10件を出す($c1..$c10 は mem-status.sh が書き込む)
