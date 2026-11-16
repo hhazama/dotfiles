@@ -18,6 +18,20 @@
     @playwright/cli \
     gitlab-ci-local
 
+# herdr のタブ行・サイドバー・ポップアップに出す情報を集める(config/herdr/herdr-status)。
+# クレートの mise.toml が指す Rust で、手元のクレートのキャッシュからビルドする
+- name: herdr-status | Build and install
+  become_user: "{{ ansible_exec_user }}"
+  shell: mise trust -q . && mise install && mise exec -- cargo install --locked --path . --root {{ ansible_exec_user_home }}/.local
+  args:
+    chdir: "{{ config_directory_path }}/herdr/herdr-status"
+  environment:
+    PATH: "{{ ansible_exec_user_home }}/.local/bin:{{ ansible_env.PATH }}"
+    RUSTUP_HOME: "{{ xdg_data_home }}/rustup"
+    CARGO_HOME: "{{ xdg_data_home }}/cargo"
+  tags:
+    - herdr-status
+
 # Claude Code は npm 版が旧式。ネイティブインストーラ(Node不要・自動更新)を使う
 - name: claude-code | Install via native installer
   become_user: "{{ ansible_exec_user }}"

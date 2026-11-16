@@ -41,7 +41,7 @@ height = "80%"
 [[keys.command]]
 key = "prefix+t"
 type = "popup"
-command = "/usr/bin/python3 -I ~/.config/herdr/agent_timeline.py view"
+command = "~/.local/bin/herdr-status view --refresh 2"
 width = "95%"
 height = "90%"
 
@@ -62,15 +62,13 @@ hide_tab_bar_when_single_tab = false
 # 状態変化で並びが動くと目で追えないため、ワークスペース順で固定する
 agent_panel_sort = "spaces"
 status_indicators = "symbols"
+# 並列で回すセッションの進み具合と、WSL が OOM しやすいためメモリの使用量・最大プロセスを常に見えるようにする。
+# サイドバーの $progress と spaces の $c1..$c10 もここで更新する。新しい環境で入れ忘れたら気づけるように echo を付ける
 tab_bar_right = [
-  # 並列で回すセッションの進み具合を全体で掴むため、タスクとサブエージェントの集計を出す。
-  # サイドバー各行の $progress もここで更新する。エージェントの数だけ herdr を呼ぶので timeout を長めにとる
-  { type = "command", command = "/usr/bin/python3 -I ~/.config/herdr/agent_timeline.py report", interval_seconds = 10, timeout_seconds = 4 },
-  # 並列エージェント・証跡撮影・nvim の同時利用で WSL が OOM しやすいため、使用量と最大プロセスを常に見えるようにする
-  { type = "command", command = "~/.config/herdr/mem-status.sh", interval_seconds = 10, timeout_seconds = 2 },
+  { type = "command", command = "~/.local/bin/herdr-status report || echo 'herdr-status 未導入'", interval_seconds = 10, timeout_seconds = 3 },
 ]
 
-# spaces はあまり使わないので、workspace 行の下にメモリを食っているコンテナ上位10件を出す($c1..$c10 は mem-status.sh が書き込む)
+# spaces はあまり使わないので、workspace 行の下にメモリを食っているコンテナ上位10件を出す($c1..$c10 は herdr-status が書き込む)
 [ui.sidebar.spaces]
 rows = [
   ["state_icon", "workspace"],
@@ -79,7 +77,7 @@ rows = [
 ]
 
 # どのペインが何をしていて、どこまで進んだか分かるように、Claude Code が端末タイトルに書く作業内容と
-# タスクの進捗(agent_timeline.py が書く $progress)を出す
+# タスクの進捗(herdr-status が書く $progress)を出す
 [ui.sidebar.agents.rows_by_agent]
 claude = [["state_icon", "workspace", "tab"], ["terminal_title_stripped"], ["$progress"]]
 
