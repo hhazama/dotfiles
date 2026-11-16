@@ -601,7 +601,7 @@ pub struct LiveAgent {
 }
 
 pub fn claude_agents(herdr: &Herdr) -> Vec<LiveAgent> {
-    let Ok(result) = herdr.query("agent.list", json!({})) else {
+    let Ok(result) = herdr.request("agent.list", json!({})) else {
         return Vec::new();
     };
     let agents = result
@@ -650,7 +650,7 @@ pub fn report(ctx: &Ctx, herdr: &Herdr, now: i64) -> Result<String, String> {
         };
         let params =
             json!({"pane_id": agent.pane_id, "source": SOURCE, "ttl_ms": TTL_MS, "tokens": {"progress": value}});
-        let _ = herdr.send("pane.report_metadata", params);
+        let _ = herdr.request("pane.report_metadata", params);
         summaries.extend(summary);
     }
     Ok(tab_summary(&summaries))

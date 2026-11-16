@@ -42,7 +42,7 @@ ansible-playbook -i ./hosts/local --extra-vars ansible_exec_user=$USER --extra-v
     - `links`: config ディレクトリ内のファイルを `~/.config/` にシンボリックリンク
     - `docker`: Docker のセットアップ
     - `zsh`: zsh の設定
-    - `mise`: mise(ランタイムバージョン管理ツール)のセットアップ
+    - `mise`: mise(ランタイムバージョン管理ツール)のセットアップと、mise で入れた言語でビルドするツール(herdr-status など)のインストール
     - `ssh`: SSH 設定
     - その他: `win32yank`, `sudoers`
 
@@ -77,11 +77,11 @@ ansible-playbook -i ./hosts/local --extra-vars ansible_exec_user=$USER --extra-v
 
 ### herdr-status を変更する場合
 
-`config/herdr/herdr-status/`(Rust)は herdr のタブ行・サイドバー・`prefix+t` のポップアップに出す情報を集めるバイナリで、symlink ではなく `~/.local/bin/herdr-status` にインストールして使う。変更したら再インストールする。
+`config/herdr/herdr-status/`(Rust)は herdr のタブ行・サイドバー・`prefix+t` のポップアップに出す情報を集めるバイナリで、symlink ではなく `~/.local/bin/herdr-status` にインストールして使う(mise ロールのタグ `herdr-status`)。変更したら、リポジトリ直下から次を実行して再インストールする。
 
 ```bash
-cd config/herdr/herdr-status && cargo test --offline --locked
-cd ansible && ansible-playbook -i ./hosts/local --extra-vars ansible_exec_user=$USER --extra-vars ansible_exec_user_home=$HOME ./site.yml --tags herdr-status
+(cd config/herdr/herdr-status && cargo test --locked)
+(cd ansible && ansible-playbook -i ./hosts/local --extra-vars ansible_exec_user=$USER --extra-vars ansible_exec_user_home=$HOME ./site.yml --tags herdr-status)
 ```
 
 ### Ansible ロールを変更する場合

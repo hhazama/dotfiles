@@ -19,7 +19,7 @@
     gitlab-ci-local
 
 # herdr のタブ行・サイドバー・ポップアップに出す情報を集める(config/herdr/herdr-status)。
-# クレートの mise.toml が指す Rust で、手元のクレートのキャッシュからビルドする
+# グローバルの Rust では edition 2024 をビルドできないので、クレートの mise.toml が指す版を使う
 - name: herdr-status | Build and install
   become_user: "{{ ansible_exec_user }}"
   shell: mise trust -q . && mise install && mise exec -- cargo install --locked --path . --root {{ ansible_exec_user_home }}/.local

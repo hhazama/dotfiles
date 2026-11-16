@@ -42,29 +42,16 @@ pub fn request_at(path: &Path, method: &str, params: Value) -> Result<Value, Str
         .ok_or_else(|| format!("{method}: result がない"))
 }
 
-/// 問い合わせは常に実行し、書き込みは dry_run なら内容を stderr に出すだけにする。
 pub struct Herdr {
-    pub dry_run: bool,
     path: PathBuf,
 }
 
 impl Herdr {
-    pub fn new(dry_run: bool) -> Self {
-        Herdr {
-            dry_run,
-            path: socket_path(),
-        }
+    pub fn new() -> Self {
+        Herdr { path: socket_path() }
     }
 
-    pub fn query(&self, method: &str, params: Value) -> Result<Value, String> {
-        request_at(&self.path, method, params)
-    }
-
-    pub fn send(&self, method: &str, params: Value) -> Result<Value, String> {
-        if self.dry_run {
-            eprintln!("{method} {params}");
-            return Ok(Value::Null);
-        }
+    pub fn request(&self, method: &str, params: Value) -> Result<Value, String> {
         request_at(&self.path, method, params)
     }
 }

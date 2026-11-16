@@ -1,5 +1,3 @@
-//! タブ行のメモリ表示。並列エージェント・証跡撮影・nvim の同時利用で WSL が OOM しやすいため、
-//! 使用量と最大プロセスを常に見えるようにし、空きが閾値を割ったら一度だけ herdr のトーストで知らせる。
 use serde_json::{Map, Value, json};
 use std::collections::{HashMap, HashSet};
 use std::fs;
@@ -95,14 +93,12 @@ struct Top {
 }
 
 fn top_process() -> Option<Top> {
-    let mut pids: Vec<String> = fs::read_dir("/proc")
+    let pids: Vec<String> = fs::read_dir("/proc")
         .ok()?
         .flatten()
         .filter_map(|e| e.file_name().into_string().ok())
         .filter(|n| n.bytes().all(|b| b.is_ascii_digit()))
         .collect();
-    // sh 版の /proc/[0-9]* と同じ並びにして、同じ値のときの選び方を揃える
-    pids.sort();
     let mut best: Option<(String, u64)> = None;
     for pid in pids {
         // 読む途中で消えたプロセスは飛ばす
@@ -244,16 +240,16 @@ fn report_containers(herdr: &Herdr, names_path: &Path) {
     let ids: HashSet<&str> = usage.iter().map(|(_, id)| id.as_str()).collect();
     let names = container_names(names_path, &ids);
     let tokens = rank_tokens(usage.clone(), &names);
-    let Ok(list) = herdr.query("workspace.list", json!({})) else {
+    let Ok(list) = herdr.request("workspace.list", json!({})) else {
         return;
     };
     for ws in list.get("workspaces").and_then(Value::as_array).into_iter().flatten() {
         let Some(id) = ws.get("workspace_id").and_then(Value::as_str) else {
             continue;
         };
-        // スクリプトが止まったら古い順位を残さないよう TTL で消す
+        // 更新が止まったら古い順位を残さないよう TTL で消す
         let params = json!({"workspace_id": id, "source": SOURCE, "ttl_ms": crate::timeline::TTL_MS, "tokens": tokens});
-        let _ = herdr.send("workspace.report_metadata", params);
+        let _ = herdr.request("workspace.report_metadata", params);
     }
 }
 
@@ -300,7 +296,7 @@ pub fn report(herdr: &Herdr) -> Result<String, String> {
             "body": format!("最大: {} (pid {}) {}G / swap {}G 使用", top.label, top.pid, gb(top.mb), gb(mem.swap_used)),
             "sound": "request",
         });
-        herdr.send("notification.show", params).is_ok()
+        herdr.request("notification.show", params).is_ok()
     });
     Ok(status_line(&mem, &top.label, top.mb, alert.warn_mb))
 }

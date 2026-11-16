@@ -127,7 +127,7 @@ fn sub_line(sub: &Sub, now: i64, indent: &str) -> String {
     )
 }
 
-pub fn tree_lines(state: &State, now: i64) -> Vec<String> {
+fn tree_lines(state: &State, now: i64) -> Vec<String> {
     let tasks = &state.tasks;
     let subs = visible_subs(state, now);
     let not_in_tasks = |s: &Sub| s.task.is_none_or(|t| !tasks.contains_key(&t));
@@ -242,7 +242,7 @@ fn lane(cols: usize, now: i64, value_at: impl Fn(f64, f64) -> String) -> String 
         .collect()
 }
 
-pub fn timeline_lines(state: &State, now: i64, cols: usize) -> Vec<String> {
+fn timeline_lines(state: &State, now: i64, cols: usize) -> Vec<String> {
     let minutes: &BTreeMap<i64, u32> = &state.minutes;
     // 動きのないセッションの空のレーンで一覧が埋まらないようにする
     if !minutes.keys().any(|&m| m >= now - WINDOW_SEC) {
@@ -503,7 +503,7 @@ impl Drop for Terminal {
 
 pub fn run(refresh_sec: u64) -> Result<(), String> {
     let ctx = Ctx::from_env();
-    let herdr = Herdr::new(false);
+    let herdr = Herdr::new();
     let mut selected = 0usize;
     let focus = {
         let _term = Terminal::enter()?;
@@ -536,7 +536,7 @@ pub fn run(refresh_sec: u64) -> Result<(), String> {
     };
     // 端末を戻してから移動する
     if let Some(pane) = focus {
-        herdr.send("agent.focus", json!({"target": pane}))?;
+        herdr.request("agent.focus", json!({"target": pane}))?;
     }
     Ok(())
 }
