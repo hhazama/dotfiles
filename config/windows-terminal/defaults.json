@@ -5,7 +5,8 @@
         "padding": "8, 8, 8, 8",
         "scrollbarState": "hidden",
         "cursorShape": "filledBox",
-        "intenseTextStyle": "bright"
+        "intenseTextStyle": "bright",
+        "experimental.detectURLs": false
     },
     "top_level": {
         "useAcrylicInTabRow": true,
