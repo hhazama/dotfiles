@@ -1,0 +1,53 @@
+{
+  "command-guard": {
+    "PreToolUse": [
+      {
+        "matcher": "run_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./hooks/validate-command.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
+  "sensitive-file-guard": {
+    "PreToolUse": [
+      {
+        "matcher": "read_file|write_file|edit_file|view_file|write_to_file|replace_file_content|multi_replace_file_content",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./hooks/guard-sensitive-files.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
+  "format-on-edit": {
+    "PostToolUse": [
+      {
+        "matcher": "edit_file|write_file|write_to_file|replace_file_content|multi_replace_file_content",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./hooks/format-on-edit.sh",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  },
+  "notify-on-stop": {
+    "Stop": [
+      {
+        "type": "command",
+        "command": "./hooks/notify-on-stop.sh",
+        "timeout": 10
+      }
+    ]
+  }
+}

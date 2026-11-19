@@ -1,10 +1,15 @@
 SHELL_FILES := install.sh scripts/setup.sh \
+	scripts/test-antigravity-hooks.sh \
 	config/scripts/bin/fzf-preview-directory \
 	config/scripts/bin/fzf-preview-file \
 	config/scripts/bin/fzf-preview-git \
 	config/claude-settings/hooks/validate-command.sh \
 	config/claude-settings/statusline-command.sh \
-	config/antigravity-settings/statusline-command.sh \
+	home/.gemini/antigravity-cli/statusline-command.sh \
+	home/.gemini/config/hooks/validate-command.sh \
+	home/.gemini/config/hooks/guard-sensitive-files.sh \
+	home/.gemini/config/hooks/format-on-edit.sh \
+	home/.gemini/config/hooks/notify-on-stop.sh \
 	scripts/hooks/pre-push
 
 .PHONY: setup-hooks lint secrets check help
