@@ -4,6 +4,7 @@
 !.gitignore
 !config.toml
 !mem-kill.sh
+!close-idle-shells.sh
 !herdr-status/
 !herdr-status/**
 herdr-status/target/

@@ -53,6 +53,12 @@ command = "~/ghq/gitlab.fdev/hazama/misc/claude/scripts/mr-review/pick.sh"
 width = "90%"
 height = "80%"
 
+# claude を終えて残った shell だけのタブ・ペインをまとめて閉じる
+[[keys.command]]
+key = "prefix+alt+x"
+type = "shell"
+command = "~/.config/herdr/close-idle-shells.sh"
+
 [ui]
 show_agent_labels_on_pane_borders = true
 # ctrl+t c での new tab 作成時に名前入力ポップアップを出さない(renameは prefix+shift+t)
