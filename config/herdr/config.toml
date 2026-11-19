@@ -53,6 +53,18 @@ command = "~/ghq/gitlab.fdev/hazama/misc/claude/scripts/mr-review/pick.sh"
 width = "90%"
 height = "80%"
 
+# 新しいタブで mt(素材登録)に移って claude を起動する。claude を終えると shell に戻れるよう exec にはしない
+[[keys.command]]
+key = "prefix+shift+c"
+type = "shell"
+command = 'pane=$(herdr tab create --cwd /data/git/webconnect/material_registration --focus | jq -r .result.root_pane.pane_id) && herdr pane run "$pane" claude'
+
+# claude を終えて残った shell だけのタブ・ペインをまとめて閉じる
+[[keys.command]]
+key = "prefix+alt+x"
+type = "shell"
+command = "~/.config/herdr/close-idle-shells.sh"
+
 [ui]
 show_agent_labels_on_pane_borders = true
 # ctrl+t c での new tab 作成時に名前入力ポップアップを出さない(renameは prefix+shift+t)
