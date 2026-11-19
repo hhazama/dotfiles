@@ -4,6 +4,7 @@ SHELL_FILES := install.sh scripts/setup.sh \
 	config/scripts/bin/fzf-preview-git \
 	config/claude-settings/hooks/validate-command.sh \
 	config/claude-settings/statusline-command.sh \
+	config/antigravity-settings/statusline-command.sh \
 	scripts/hooks/pre-push
 
 .PHONY: setup-hooks lint secrets check help
