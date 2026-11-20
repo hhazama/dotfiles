@@ -79,7 +79,6 @@ snippets:
     keyword: lo
     snippet: logs --tail 100 -f
     context:
-      context:
       <<: *docker-context
 
   - name: docker pull

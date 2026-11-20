@@ -68,6 +68,8 @@ export ZENO_ENABLE_FZF_TMUX=1
 export ZENO_FZF_TMUX_OPTIONS="-p 90%"
 export ZENO_HOME="$XDG_CONFIG_HOME/zeno"
 export ZENO_ENABLE_SOCK=1
+# Deno 2.9系で deno cache が TTY の stderr に行消去シーケンスを吐きプロンプトを消すため無効化
+export ZENO_DISABLE_EXECUTE_CACHE_COMMAND=1
 export ZENO_GIT_CAT="bat --color=always"
 export ZENO_GIT_TREE="eza --tree"
 
