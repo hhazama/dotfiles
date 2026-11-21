@@ -1,4 +1,6 @@
 {
+  "agentMode": "auto",
+  "enableTerminalSandbox": true,
   "statusLine": {
     "type": "command",
     "command": "~/.gemini/antigravity-cli/statusline-command.sh",

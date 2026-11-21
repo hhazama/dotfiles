@@ -50,6 +50,9 @@ ansible-playbook -i ./hosts/local --extra-vars ansible_exec_user=$USER --extra-v
   - Ansible の `links` ロールにより `~/.config/` 配下にシンボリックリンクが作成される
   - 主要な設定: `nvim`, `tmux`, `zsh`, `git`, `starship`, `navi`, `lazygit`, `lazydocker` など
 
+- **home/**: ホームディレクトリ直下のミラー管理（例: `home/.gemini/`）
+  - Ansible の `links` ロールにより `~/.gemini/` 等の実配置パスへファイル／サブディレクトリ単位でリンク（ランタイムが書き換える `settings.json` のみ初回コピー）される
+
 - **scripts/**: セットアップスクリプト
   - `setup.sh`: Ansible のインストールと実行
 

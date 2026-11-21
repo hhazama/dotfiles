@@ -26,6 +26,7 @@
   with_items:
     - "{{ xdg_config_home }}/claude"
     - "{{ ansible_exec_user_home }}/.gemini/antigravity-cli"
+    - "{{ ansible_exec_user_home }}/.gemini/config"
 
 - name: links | create symlink
   become_user: "{{ ansible_exec_user }}"
@@ -44,6 +45,7 @@
       force: yes
     - src: "{{ xdg_config_home }}/claude-settings/commands"
       dest: "{{ xdg_config_home }}/claude/commands"
+      force: yes
     - src: "{{ xdg_config_home }}/claude-settings/statusline-command.sh"
       dest: "{{ xdg_config_home }}/claude/statusline-command.sh"
     - src: "{{ ansible_exec_user_home }}/ghq/gitlab.fdev/hazama/misc/claude/skills"
@@ -55,12 +57,33 @@
     - src: "{{ xdg_config_home }}/claude"
       dest: "{{ ansible_exec_user_home }}/.claude"
       force: yes
-    - src: "{{ xdg_config_home }}/antigravity-settings/statusline-command.sh"
+    - src: "{{ home_directory_path }}/.gemini/antigravity-cli/statusline-command.sh"
       dest: "{{ ansible_exec_user_home }}/.gemini/antigravity-cli/statusline-command.sh"
       force: yes
+    - src: "{{ home_directory_path }}/.gemini/config/AGENTS.md"
+      dest: "{{ ansible_exec_user_home }}/.gemini/config/AGENTS.md"
+      force: yes
+    - src: "{{ home_directory_path }}/.gemini/config/hooks.json"
+      dest: "{{ ansible_exec_user_home }}/.gemini/config/hooks.json"
+      force: yes
+    - src: "{{ home_directory_path }}/.gemini/config/hooks"
+      dest: "{{ ansible_exec_user_home }}/.gemini/config/hooks"
+      force: yes
+
+- name: links | remove obsolete antigravity-settings symlink
+  become_user: "{{ ansible_exec_user }}"
+  file:
+    state: absent
+    path: "{{ xdg_config_home }}/antigravity-settings"
 
 # settings.json は Claude Code 自身が書き換える(symlink は実ファイルで置換される)ため
 # symlink ではなく初回のみ copy。以降の同期は misc の claude/scripts/claude-settings-diff.sh で行う
+- name: links | check claude misc settings.json exists
+  become_user: "{{ ansible_exec_user }}"
+  stat:
+    path: "{{ ansible_exec_user_home }}/ghq/gitlab.fdev/hazama/misc/claude/settings.json"
+  register: claude_misc_settings
+
 - name: links | copy claude settings.json (initial only)
   become_user: "{{ ansible_exec_user }}"
   copy:
@@ -69,12 +92,13 @@
     remote_src: yes
     force: no
     mode: "0644"
+  when: claude_misc_settings.stat.exists
 
 # settings.json は Antigravity CLI 自身が書き換えるため symlink ではなく初回のみ copy
 - name: links | copy antigravity settings.json (initial only)
   become_user: "{{ ansible_exec_user }}"
   copy:
-    src: "{{ xdg_config_home }}/antigravity-settings/settings.json"
+    src: "{{ home_directory_path }}/.gemini/antigravity-cli/settings.json"
     dest: "{{ ansible_exec_user_home }}/.gemini/antigravity-cli/settings.json"
     remote_src: yes
     force: no
