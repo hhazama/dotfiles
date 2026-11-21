@@ -73,8 +73,10 @@ __zeno_atload() {
     (( ${+commands[atuin]} )) || bindkey "^R" zeno-history-selection # C-r
 }
 # NOTE denoがないとインストールできない
+# 最新版は zeno-bootstrap.zsh がアルファベット順で先に来るため、初期化まで行う zeno.zsh を明示する
 if (( ${+commands[deno]} )); then
 	zinit wait lucid light-mode for \
+        pick'zeno.zsh' \
         atload'__zeno_atload' \
 		@'yuki-yano/zeno.zsh'
 fi
